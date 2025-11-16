@@ -9,7 +9,8 @@ members = [
     # "crates/*",
     "orchestrator/api",
     "sdk/rust",
-    # "runtimes/wasm-rust",
+    "runtimes/wasm-rust",
+    "agents/foundation/echo-wasm",
     # "sdk/rust",
     # "tools/*",
 ]
