@@ -18,27 +18,27 @@ export function ArchitectureSection() {
           {[
             [
               "Economic layer",
-              "VCG-style auctions, reputation, and tokenomics for task allocation and settlement.",
+              "How agents keep track of value, rewards, and simple reputation.",
             ],
             [
               "Verification layer",
-              "Trusted execution and zero-knowledge proofs for verifiable computation.",
+              "Ways to check that results match what was agreed, without repeating all the work.",
             ],
             [
               "Runtime layer",
-              "WASM-based agent execution environments with explicit resource metering.",
+              "Environments where agent code runs with clear limits and isolation.",
             ],
             [
               "Communication layer",
-              "AACL message protocols for negotiation and coordination.",
+              "Basic patterns for agents to ask, respond, and coordinate with each other.",
             ],
             [
               "Network layer",
-              "libp2p-based overlay with structured peer discovery and routing.",
+              "The connectivity layer that allows agents to find and talk to one another.",
             ],
             [
               "Consensus layer",
-              "Substrate-based BFT state machine as temporal anchor.",
+              "The shared record that everyone can rely on when they need a final answer.",
             ],
           ].map(([title, desc]) => (
             <div
