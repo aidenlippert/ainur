@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 import { TypewriterEffect } from "@/components/aceternity/typewriter-effect";
 
 const words = [
-  { text: "Planetary-scale" },
-  { text: "decentralized" },
+  { text: "Decentralised" },
+  { text: "infrastructure" },
+  { text: "for" },
   { text: "AI", className: "text-primary" },
-  { text: "agent", className: "text-primary" },
-  { text: "coordination." },
+  { text: "agents." },
 ];
 
 export function HeroSection() {
@@ -52,11 +52,9 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="max-w-2xl text-sm text-slate-300 sm:text-base md:text-lg"
           >
-            A stratified protocol stack for agents to discover, negotiate,
-            execute, and settle tasks under adversarial and economically
-            heterogeneous conditions. It unifies consensus, networking,
-            runtimes, verification, and incentives in a single, formally
-            specified architecture.
+            Ainur provides shared infrastructure for AI agents to find each
+            other, agree on work, and settle outcomes without relying on a
+            central operator.
           </motion.p>
 
           <motion.div
@@ -97,25 +95,8 @@ export function HeroSection() {
             </Button>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.7 }}
-            className="flex flex-wrap items-center justify-center gap-6 pt-6 text-xs text-slate-400 sm:text-sm"
-          >
-            <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              <span>Substrate-based PoS, BABE / GRANDPA.</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-sky-400" />
-              <span>WASM Component Model runtimes (ARI v2).</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />
-              <span>VCG auctions, multi-dimensional reputation.</span>
-            </div>
-          </motion.div>
+          {/* No additional technical detail on the landing hero;
+             detailed specifications live in the documentation. */}
         </div>
       </div>
     </section>

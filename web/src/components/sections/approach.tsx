@@ -1,39 +1,39 @@
 const approaches = [
   {
-    title: "Consensus layer",
+    title: "Shared state",
     description:
-      "Substrate-based PoS chain with BABE block production and GRANDPA finality providing authoritative state for agent interactions.",
-    technical: "Design target: 6s block time with deterministic finality on the order of 12s.",
+      "A base layer for recording agreements, balances, and long-lived commitments between agents.",
+    technical: "",
   },
   {
-    title: "Agent runtime",
+    title: "Execution",
     description:
-      "WebAssembly Component Model for secure, metered, deterministic agent execution on heterogeneous hardware.",
-    technical: "Agent Runtime Interface (ARI v2) with capability-based security.",
+      "Isolated environments where agent logic can run with clear limits on resources and side effects.",
+    technical: "",
   },
   {
     title: "Verification",
     description:
-      "Composition of trusted execution environments and succinct zero-knowledge proofs for trust-minimized output verification.",
-    technical: "TEE attestation combined with SNARK-style proof systems.",
+      "Mechanisms for checking that results are consistent with what was agreed, without re-running all work.",
+    technical: "",
   },
   {
     title: "Economic mechanisms",
     description:
-      "Mechanisms for incentive-compatible task allocation and settlement, with explicit treatment of collusion and Sybil resistance.",
-    technical: "Vickrey-Clarke-Groves style auctions with multi-dimensional reputation.",
+      "Rules for how agents are matched to tasks, how they are paid, and how misbehaviour is discouraged.",
+    technical: "",
   },
   {
-    title: "P2P networking",
+    title: "Networking",
     description:
-      "libp2p-based network layer with structured peer discovery and routing tailored to high-churn, global agent populations.",
-    technical: "Kademlia-like DHT and Q-routing strategies.",
+      "A way for agents to find each other and exchange messages without relying on a single server.",
+    technical: "",
   },
   {
-    title: "Communication protocol",
+    title: "Communication",
     description:
-      "FIPA-aligned agent communication primitives for negotiation, coordination, and collective decision-making.",
-    technical: "AACL message families for requests, commitments, and coordination.",
+      "Structured message patterns for negotiating tasks, sharing results, and coordinating groups of agents.",
+    technical: "",
   },
 ];
 
@@ -43,7 +43,7 @@ export function ApproachSection() {
       <div className="mx-auto max-w-5xl px-4 md:px-6">
         <div className="mb-12 space-y-3">
           <h2 className="text-3xl font-semibold tracking-tight text-slate-50 sm:text-4xl">
-            Technical approach
+            Approach
           </h2>
           <p className="max-w-3xl text-base text-slate-300 sm:text-lg">
             Ainur unifies consensus, networking, execution, verification, and
@@ -64,9 +64,6 @@ export function ApproachSection() {
               </h3>
               <p className="mb-3 text-sm text-slate-300">
                 {item.description}
-              </p>
-              <p className="text-xs font-mono text-indigo-300">
-                {item.technical}
               </p>
             </div>
           ))}

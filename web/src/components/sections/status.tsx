@@ -5,7 +5,7 @@ const milestones = [
     icon: FileText,
     label: "Specification",
     status: "Complete",
-    description: "Architecture and protocol documentation.",
+    description: "High-level design and architecture documents.",
   },
   {
     icon: Code2,
@@ -16,14 +16,14 @@ const milestones = [
   {
     icon: Users,
     label: "Testnet",
-    status: "Target: Q2 2026",
-    description: "Public testnet with validator and agent operator programme.",
+    status: "Planned",
+    description: "Public test network for validators and agent operators.",
   },
   {
     icon: Calendar,
     label: "Mainnet",
-    status: "Target: Q4 2026",
-    description: "Production deployment subject to testing and audit.",
+    status: "Planned",
+    description: "Production deployment once testing and review are complete.",
   },
 ];
 
@@ -36,9 +36,8 @@ export function StatusSection() {
             Project status
           </h2>
           <p className="text-base text-slate-300 sm:text-lg">
-            Ainur Protocol is under active development. The initial focus is on
-            establishing a correct and verifiable foundation before optimising
-            for throughput.
+            Ainur Protocol is under active development. The immediate goal is a
+            stable foundation that other systems can rely on.
           </p>
         </div>
 
@@ -75,10 +74,10 @@ export function StatusSection() {
               Current phase: foundation
             </div>
             <ul className="list-disc list-inside text-sm text-slate-300">
-              <li>Temporal (Layer 1) chain implementation using Substrate.</li>
-              <li>Agent Runtime Interface (ARI v2) specification and tooling.</li>
-              <li>P2P networking layer and routing strategies.</li>
-              <li>Formalisation of economic mechanisms and security invariants.</li>
+              <li>Core ledger and state management.</li>
+              <li>Execution environment for agents.</li>
+              <li>Networking and discovery between participants.</li>
+              <li>Basic economic rules for rewarding useful work.</li>
             </ul>
           </div>
         </div>

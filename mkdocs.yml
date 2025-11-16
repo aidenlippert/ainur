@@ -6,7 +6,6 @@ repo_name: aidenlippert/ainur
 
 theme:
   name: material
-  custom_dir: docs/overrides
   palette:
     scheme: slate
     primary: indigo
@@ -55,11 +54,6 @@ markdown_extensions:
   - tables
   - attr_list
   - md_in_html
-
-extra_css:
-  - stylesheets/custom.css
-  - https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap
-  - https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap
 
 extra_javascript:
   - javascripts/mathjax.js
