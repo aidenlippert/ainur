@@ -8,17 +8,16 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/90 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 md:px-6">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-700 bg-slate-950">
-            <Image
-              src="/logo-ainur.svg"
-              alt="Ainur logo"
-              width={20}
-              height={20}
-              priority
-            />
-          </div>
-          <span className="text-sm font-semibold tracking-tight text-slate-100">
+        <Link href="/" className="flex items-center gap-3">
+          <Image
+            src="/logo-ainur.svg"
+            alt="Ainur logo"
+            width={32}
+            height={32}
+            className="h-8 w-8"
+            priority
+          />
+          <span className="text-base font-bold tracking-tight text-white">
             Ainur Protocol
           </span>
         </Link>
