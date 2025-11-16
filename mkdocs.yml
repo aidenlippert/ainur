@@ -74,8 +74,17 @@ nav:
     - Problem Statement: introduction/problem-statement.md
     - Solution Approach: introduction/solution-approach.md
   - Architecture:
-    - Architecture Overview: architecture-structure/overview.md
+    - Overview: architecture-structure/overview.md
+    - Design Principles: architecture-structure/design-principles.md
     - Technical Specifications: architecture/technical-specifications.md
+    - Layer 1 - Temporal: architecture-structure/layer-1-temporal.md
+    - Layer 3 - Aether: architecture-structure/layer-3-aether.md
+    - Layer 5 - Cognition: architecture-structure/layer-5-cognition.md
+    - Layer 6 - Koinos: architecture-structure/layer-6-koinos.md
+  - Protocol Specifications:
+    - ARI v2: protocol-specs/ari-specification.md
+    - AACL: protocol-specs/aacl-standard.md
+    - DID Method: protocol-specs/did-method.md
   - Whitepaper: whitepaper.md
   - Contributing:
     - Guidelines: CONTRIBUTING.md
