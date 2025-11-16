@@ -1,0 +1,22 @@
+[package]
+name = "ainur-orchestrator-api"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "HTTP/JSON orchestrator API for the Ainur Protocol"
+
+[dependencies]
+ainur-core = { path = "../../crates/ainur-core" }
+ainur-agent-sdk = { path = "../../sdk/rust" }
+axum = { version = "0.7", features = ["macros", "json"] }
+tokio = { workspace = true, features = ["full"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+thiserror = "1.0"
+uuid = { version = "1.8", features = ["v4", "serde"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+blake3 = "1.5"
+base64 = "0.22"
+
+

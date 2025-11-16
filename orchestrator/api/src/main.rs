@@ -11,6 +11,7 @@
 //! networking layers underneath.
 
 mod error;
+mod execution;
 mod model;
 
 use axum::{
@@ -19,6 +20,7 @@ use axum::{
     Json, Router,
 };
 use error::ApiError;
+use execution::{execute_and_build_result, LocalEchoEngine};
 use model::{
     AgentRegistrationRequest, BidSubmissionRequest, BidView, ResultSubmissionRequest, ResultView,
     StoredBid, StoredResult, StoredTask, TaskSubmissionRequest, TaskView,
@@ -32,12 +34,25 @@ use tracing::{error, info};
 /// This is a stand‑in for proper storage and consensus. It allows us to
 /// exercise `ainur-core` types without making assumptions about the eventual
 /// persistence layer.
-#[derive(Clone, Default)]
+#[derive(Clone)]
 struct AppState {
     agents: Arc<RwLock<HashMap<String, AgentRegistrationRequest>>>,
     tasks: Arc<RwLock<HashMap<String, StoredTask>>>,
     bids: Arc<RwLock<HashMap<String, StoredBid>>>,
     results: Arc<RwLock<HashMap<String, StoredResult>>>,
+    engine: Arc<LocalEchoEngine>,
+}
+
+impl Default for AppState {
+    fn default() -> Self {
+        Self {
+            agents: Arc::new(RwLock::new(HashMap::new())),
+            tasks: Arc::new(RwLock::new(HashMap::new())),
+            bids: Arc::new(RwLock::new(HashMap::new())),
+            results: Arc::new(RwLock::new(HashMap::new())),
+            engine: Arc::new(LocalEchoEngine::default()),
+        }
+    }
 }
 
 #[tokio::main]
@@ -56,6 +71,7 @@ async fn main() {
         .route("/v1/tasks/:id/bids", get(get_bids_for_task))
         .route("/v1/results", post(submit_result))
         .route("/v1/tasks/:id/result", get(get_task_result))
+        .route("/v1/tasks/:id/execute-local", post(execute_task_local))
         .with_state(state);
 
     let addr: SocketAddr = match "0.0.0.0:8080".parse() {
@@ -234,6 +250,40 @@ async fn get_task_result(
         .ok_or_else(|| ApiError::NotFound(format!("no result for task {id}")))?;
 
     Ok(Json(ResultView::from_stored(stored)))
+}
+
+/// Convenience endpoint used during early development to exercise the complete
+/// execution path using the local in-process execution engine. In later
+/// iterations this will be replaced by automatic execution when bids are
+/// accepted and wired to the Cognition WASM runtime.
+async fn execute_task_local(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+) -> Result<Json<ResultView>, ApiError> {
+    // Obtain mutable access to the task so we can update its status.
+    let mut tasks = state.tasks.write().await;
+    let task = tasks
+        .get_mut(&id)
+        .ok_or_else(|| ApiError::NotFound(format!("task {id} not found")))?
+        as *mut StoredTask;
+
+    // Safety: we hold the write lock for the duration of this function and
+    // never alias `task` elsewhere, so this mutable pointer will not be used
+    // concurrently.
+    let task_ref = unsafe { &mut *task };
+
+    let stored_result = execute_and_build_result(&state.engine, task_ref, "local-echo".into())?;
+
+    // Mark task as completed; `execute_and_build_result` already updated it via
+    // `StoredResult::from_submission`.
+    task_ref.status = model::TaskStatus::Completed;
+
+    let view = ResultView::from_stored(&stored_result);
+
+    let mut results = state.results.write().await;
+    results.insert(stored_result.id.clone(), stored_result);
+
+    Ok(Json(view))
 }
 
 

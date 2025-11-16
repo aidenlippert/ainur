@@ -23,8 +23,8 @@ pub enum ApiError {
     NotFound(String),
 
     /// An unexpected error occurred inside the orchestrator.
-    #[error("internal server error")]
-    Internal,
+    #[error("internal server error: {0}")]
+    Internal(String),
 }
 
 #[derive(Debug, Serialize)]
@@ -40,10 +40,10 @@ impl IntoResponse for ApiError {
         let (status, error, message) = match self {
             ApiError::BadRequest(msg) => (StatusCode::BAD_REQUEST, "bad_request", msg),
             ApiError::NotFound(msg) => (StatusCode::NOT_FOUND, "not_found", msg),
-            ApiError::Internal => (
+            ApiError::Internal(msg) => (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "internal_error",
-                "internal server error".to_string(),
+                msg,
             ),
         };
 
@@ -68,11 +68,20 @@ impl From<CoreError> for ApiError {
             | CoreError::EconomicConstraintViolation { .. } => {
                 ApiError::BadRequest(err.to_string())
             }
-            CoreError::SerializationError(_)
-            | CoreError::CryptoError(_)
-            | CoreError::NetworkError(_)
-            | CoreError::StorageError(_)
-            | CoreError::Custom(_) => ApiError::Internal,
+            CoreError::SerializationError(e)
+            | CoreError::CryptoError(e)
+            | CoreError::NetworkError(e)
+            | CoreError::StorageError(e)
+            | CoreError::Custom(e) => ApiError::Internal(e),
+        }
+    }
+}
+
+impl ApiError {
+    pub fn with_msg(self, msg: String) -> Self {
+        match self {
+            ApiError::Internal(_) => ApiError::Internal(msg),
+            other => other,
         }
     }
 }
