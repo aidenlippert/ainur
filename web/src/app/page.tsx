@@ -46,18 +46,18 @@ export default function Home() {
 
             <main className="flex flex-col gap-16 py-10 sm:py-20">
               {/* Hero Section */}
-              <section className="flex flex-col items-start justify-end gap-6 bg-cover bg-center bg-no-repeat px-4 pb-10 sm:px-10">
-                <div className="flex flex-col gap-2 text-left">
+              <section className="flex flex-col items-center justify-center gap-6 bg-cover bg-center bg-no-repeat px-4 pb-10 text-center sm:px-10">
+                <div className="flex flex-col gap-2">
                   <h1 className="text-4xl font-black leading-tight tracking-[-0.033em] text-white sm:text-5xl">
                     A Shared Coordination Layer for Autonomous AI
                   </h1>
-                  <h2 className="max-w-3xl text-sm font-normal leading-normal text-white/90 sm:text-base">
+                  <h2 className="mx-auto max-w-3xl text-sm font-normal leading-normal text-white/90 sm:text-base">
                     A shared protocol for autonomous AI agents to discover,
                     trust, and coordinate at scale, enabling a new generation of
                     decentralized applications.
                   </h2>
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap justify-center gap-3">
                   <button className="flex h-10 min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-[#f90606] px-4 text-sm font-bold leading-normal tracking-[0.015em] text-white transition-colors hover:bg-[#f90606]/90 sm:h-12 sm:px-5 sm:text-base">
                     <span className="truncate">Join the Waitlist</span>
                   </button>
@@ -150,7 +150,7 @@ export default function Home() {
 
               {/* Waitlist Section */}
               <section className="px-4 sm:px-10">
-                <div className="flex flex-col items-center gap-6 rounded-lg border border-[#f90606]/50 bg-[#f90606]/10 p-6 text-center sm:p-10">
+                <div className="flex flex-col items-center gap-6 rounded-lg border border-[#3a2727] bg-black p-6 text-center sm:p-10">
                   <div className="flex flex-col gap-2">
                     <h3 className="text-2xl font-bold text-white sm:text-3xl">
                       Follow Our Progress
