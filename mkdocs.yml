@@ -7,27 +7,26 @@ repo_name: aidenlippert/ainur
 theme:
   name: material
   palette:
-    - scheme: default
-      primary: indigo
-      accent: purple
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    - scheme: slate
-      primary: indigo
-      accent: purple
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
+    scheme: slate
+    primary: indigo
+    accent: indigo
+  font:
+    text: Inter
+    code: JetBrains Mono
   features:
     - navigation.tabs
     - navigation.sections
     - navigation.expand
     - navigation.indexes
+    - navigation.top
+    - navigation.tracking
     - toc.integrate
     - search.suggest
     - search.highlight
+    - search.share
+    - content.code.copy
     - content.code.annotate
+    - content.tabs.link
 
 plugins:
   - search
@@ -55,6 +54,11 @@ markdown_extensions:
   - tables
   - attr_list
   - md_in_html
+
+extra_css:
+  - stylesheets/custom.css
+  - https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap
+  - https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap
 
 extra_javascript:
   - javascripts/mathjax.js
