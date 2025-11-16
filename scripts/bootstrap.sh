@@ -14,7 +14,7 @@ rustup target add wasm32-unknown-unknown
 
 # Install development tools
 echo "🔧 Installing development tools..."
-cargo install cargo-watch cargo-edit cargo-audit cargo-tarpaulin substrate-contracts-node
+cargo install cargo-watch cargo-edit cargo-audit cargo-tarpaulin
 
 # Setup Git hooks
 echo "🪝 Setting up Git hooks..."
