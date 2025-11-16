@@ -2,7 +2,7 @@
   # Run MkDocs from the repository root so docs_dir (docs) and site_dir (site) are siblings.
   # Netlify will publish the generated static site from the ./site directory.
   publish = "site"
-  command = "pip install mkdocs-material mkdocs-awesome-pages-plugin mkdocs-macros-plugin mkdocs-git-revision-date-localized-plugin mkdocs-minify-plugin && mkdocs build -f mkdocs.yml"
+  command = "pip install mkdocs-material mkdocs-awesome-pages-plugin mkdocs-macros-plugin mkdocs-git-revision-date-localized-plugin mkdocs-minify-plugin && python -m mkdocs build -f mkdocs.yml"
 
 [build.environment]
   PYTHON_VERSION = "3.11"
@@ -24,7 +24,7 @@
   environment = { NODE_VERSION = "18" }
 
 [context.deploy-preview]
-  command = "mkdocs build --strict"
+  command = "python -m mkdocs build --strict"
 
 [context.branch-deploy]
-  command = "mkdocs build"
+  command = "python -m mkdocs build"
