@@ -1,29 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
-
-const geist = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist",
-});
-
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-});
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
+  weight: ["400", "500", "700"],
   variable: "--font-display",
-  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "Ainur Protocol | Decentralized AI Agent Coordination",
+  title: "Ainur Protocol - A Shared Coordination Layer for Autonomous AI",
   description:
-    "A multi-layer protocol for verifiable coordination among autonomous AI agents. Built for planetary-scale agent economies.",
+    "A shared protocol for autonomous AI agents to discover, trust, and coordinate at scale, enabling a new generation of decentralized applications.",
 };
 
 export default function RootLayout({
@@ -33,21 +21,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+        />
+      </head>
       <body
-        className={`${geist.variable} ${geistMono.variable} ${spaceGrotesk.variable} font-sans antialiased`}
+        className={`${spaceGrotesk.variable} font-display bg-[#111111] text-gray-200 antialiased`}
       >
-        <div className="relative min-h-screen bg-black">
-          {/* Animated gradient background */}
-          <div className="fixed inset-0 -z-10 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-indigo-950/20 to-slate-950" />
-            <div className="absolute top-0 left-1/4 h-[500px] w-[500px] animate-pulse-slow rounded-full bg-indigo-600/20 blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 h-[500px] w-[500px] animate-pulse-slower rounded-full bg-purple-600/20 blur-3xl" />
-            <div className="absolute top-1/2 left-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 animate-pulse-slowest rounded-full bg-cyan-600/10 blur-3xl" />
-          </div>
-          <Header />
-          <main>{children}</main>
-          <Footer />
-        </div>
+        {children}
       </body>
     </html>
   );

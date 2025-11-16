@@ -1,4 +1,4 @@
-site_name: Ainur Protocol Documentation
+site_name: Ainur Protocol
 site_url: https://docs.ainur.network
 docs_dir: docs
 repo_url: https://github.com/aidenlippert/ainur
@@ -8,48 +8,36 @@ theme:
   name: material
   palette:
     - scheme: slate
-      primary: indigo
-      accent: indigo
+      primary: red
+      accent: red
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
     - scheme: default
-      primary: indigo
-      accent: indigo
+      primary: red
+      accent: red
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
   font:
-    text: Inter
+    text: Space Grotesk
     code: JetBrains Mono
   features:
     - navigation.tabs
-    - navigation.sections
-    - navigation.expand
-    - navigation.indexes
     - navigation.top
     - navigation.tracking
     - toc.integrate
     - search.suggest
     - search.highlight
-    - search.share
     - content.code.copy
     - content.code.annotate
-    - content.tabs.link
 
 plugins:
   - search
-  - git-revision-date-localized
 
 markdown_extensions:
   - pymdownx.highlight
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
-  - pymdownx.tabbed:
-      alternate_style: true
+  - pymdownx.superfences
   - pymdownx.details
   - admonition
   - toc:
@@ -58,33 +46,11 @@ markdown_extensions:
       generic: true
   - tables
   - attr_list
-  - md_in_html
 
 extra_javascript:
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
-  - https://unpkg.com/mermaid@10.6.1/dist/mermaid.min.js
 
 nav:
-  - Home: index.md
-  - Introduction:
-    - System Overview: introduction/overview.md
-    - Motivation: introduction/motivation.md
-    - Problem Statement: introduction/problem-statement.md
-    - Solution Approach: introduction/solution-approach.md
-  - Architecture:
-    - Overview: architecture-structure/overview.md
-    - Design Principles: architecture-structure/design-principles.md
-    - Technical Specifications: architecture/technical-specifications.md
-    - Layer 1 - Temporal: architecture-structure/layer-1-temporal.md
-    - Layer 3 - Aether: architecture-structure/layer-3-aether.md
-    - Layer 5 - Cognition: architecture-structure/layer-5-cognition.md
-    - Layer 6 - Koinos: architecture-structure/layer-6-koinos.md
-  - Protocol Specifications:
-    - ARI v2: protocol-specs/ari-specification.md
-    - AACL: protocol-specs/aacl-standard.md
-    - DID Method: protocol-specs/did-method.md
   - Whitepaper: whitepaper.md
-  - Contributing:
-    - Guidelines: CONTRIBUTING.md
-    - Code of Conduct: CODE_OF_CONDUCT.md
+  - GitHub: https://github.com/aidenlippert/ainur
