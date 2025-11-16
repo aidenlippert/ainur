@@ -10,12 +10,7 @@
   display: none !important;
 }
 
-/* Reset base */
-* {
-  margin: 0;
-  padding: 0;
-}
-
+/* Core theme tokens */
 :root {
   --md-primary-fg-color: #6366f1;
   --md-accent-fg-color: #818cf8;
