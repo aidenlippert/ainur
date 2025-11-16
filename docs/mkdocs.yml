@@ -1,5 +1,6 @@
 site_name: Ainur Protocol Documentation
 site_url: https://docs.ainur.network
+docs_dir: .
 repo_url: https://github.com/aidenlippert/ainur
 repo_name: aidenlippert/ainur
 
