@@ -1,5 +1,5 @@
 site_name: Ainur Protocol Documentation
-site_url: https://ainur.network
+site_url: https://docs.ainur.network
 repo_url: https://github.com/aidenlippert/ainur
 repo_name: aidenlippert/ainur
 
@@ -54,29 +54,15 @@ extra_javascript:
 
 nav:
   - Home: index.md
-  - Getting Started:
-    - Quick Start: guides/quickstart.md
-    - Installation: guides/installation.md
-    - First Agent: guides/first-agent.md
+  - Introduction:
+    - System Overview: introduction/overview.md
+    - Motivation: introduction/motivation.md
+    - Problem Statement: introduction/problem-statement.md
+    - Solution Approach: introduction/solution-approach.md
   - Architecture:
-    - Overview: architecture/overview.md
-    - Layer 1 - Temporal: architecture/l1-temporal.md
-    - Layer 3 - P2P: architecture/l3-p2p.md
-    - Layer 4 - AACL: architecture/l4-aacl.md
-    - Layer 5 - Runtime: architecture/l5-runtime.md
-    - Layer 6 - Economics: architecture/l6-economics.md
-  - SDK Reference:
-    - Rust SDK: sdk/rust.md
-    - Python SDK: sdk/python.md
-    - TypeScript SDK: sdk/typescript.md
-  - Protocol Specifications:
-    - ARI Specification: specs/ari.md
-    - AACL Standard: specs/aacl.md
-    - DID Method: specs/did.md
-  - Operations:
-    - Running a Validator: operations/validator.md
-    - Monitoring: operations/monitoring.md
-    - Troubleshooting: operations/troubleshooting.md
+    - Architecture Overview: architecture-structure/overview.md
+    - Technical Specifications: architecture/technical-specifications.md
+  - Whitepaper: whitepaper.md
   - Contributing:
     - Guidelines: CONTRIBUTING.md
     - Code of Conduct: CODE_OF_CONDUCT.md
