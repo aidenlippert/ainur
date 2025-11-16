@@ -1,10 +1,8 @@
 [build]
-  # Use the docs/ directory as the Netlify base. MkDocs configuration is at the repository root
-  # (../mkdocs.yml) and is invoked explicitly with -f. MkDocs is configured with docs_dir: docs
-  # and site_dir: docs/site, so the generated site is written to ./site relative to this base.
-  base = "docs/"
-  publish = "site/"
-  command = "pip install mkdocs-material mkdocs-awesome-pages-plugin mkdocs-macros-plugin mkdocs-git-revision-date-localized-plugin mkdocs-minify-plugin && mkdocs build -f ../mkdocs.yml"
+  # Run MkDocs from the repository root so docs_dir (docs) and site_dir (site) are siblings.
+  # Netlify will publish the generated static site from the ./site directory.
+  publish = "site"
+  command = "pip install mkdocs-material mkdocs-awesome-pages-plugin mkdocs-macros-plugin mkdocs-git-revision-date-localized-plugin mkdocs-minify-plugin && mkdocs build -f mkdocs.yml"
 
 [build.environment]
   PYTHON_VERSION = "3.11"
