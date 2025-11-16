@@ -39,19 +39,28 @@ plugins:
 
 markdown_extensions:
   - pymdownx.highlight
-  - pymdownx.superfences
-  - pymdownx.tabbed
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.details
   - admonition
   - toc:
       permalink: true
   - pymdownx.arithmatex:
       generic: true
+  - tables
+  - attr_list
+  - md_in_html
 
 extra_javascript:
   - javascripts/mathjax.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+  - https://unpkg.com/mermaid@10.6.1/dist/mermaid.min.js
 
 nav:
   - Home: index.md

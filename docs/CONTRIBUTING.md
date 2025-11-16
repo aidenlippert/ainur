@@ -1,72 +1,90 @@
 # Contributing to Ainur Protocol
 
-Thank you for your interest in contributing to Ainur Protocol! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to Ainur Protocol. This document provides guidelines and instructions for contributing to the project.
 
-## 🌟 Ways to Contribute
+## Ways to Contribute
 
-- **Code**: Fix bugs, implement features, improve performance
-- **Documentation**: Improve docs, write tutorials, create examples
-- **Testing**: Write tests, perform QA, report bugs
-- **Design**: Protocol design, economic modeling, security analysis
-- **Community**: Help others, organize events, spread the word
+Contributions to Ainur Protocol may take several forms:
 
-## 🚀 Getting Started
+- **Code contributions**: Bug fixes, feature implementations, performance optimizations
+- **Documentation**: Improvements to technical documentation, tutorials, and examples
+- **Testing**: Unit tests, integration tests, quality assurance, and bug reports
+- **Design**: Protocol design proposals, economic modeling, and security analysis
+- **Community**: Helping other contributors, organizing events, and improving accessibility
 
-1. **Fork the repository** and clone your fork
-2. **Set up development environment** using `./scripts/bootstrap.sh`
-3. **Create a branch** for your feature or fix
-4. **Make your changes** following our guidelines
-5. **Test thoroughly** and ensure CI passes
-6. **Submit a Pull Request** with a clear description
+## Getting Started
 
-## 📋 Development Process
+### Prerequisites
 
-### 1. Before You Start
+Before contributing, ensure you have:
 
-- Check existing issues and PRs to avoid duplicate work
-- For major changes, open an issue first to discuss
-- Join our Discord to coordinate with other contributors
+1. Reviewed the project documentation and architecture
+2. Set up the development environment using `./scripts/bootstrap.sh`
+3. Familiarized yourself with the coding standards and guidelines below
 
-### 2. Code Style
+### Contribution Workflow
 
-#### Rust Guidelines
+1. Fork the repository and clone your fork locally
+2. Create a feature branch from `main` for your work
+3. Implement your changes following the guidelines in this document
+4. Add appropriate tests and documentation
+5. Ensure all continuous integration checks pass
+6. Submit a pull request with a clear description of the changes
+
+For significant changes, open an issue first to discuss the proposed approach with maintainers.
+
+## Development Standards
+
+### Rust Code Guidelines
+
+All Rust code must adhere to the following standards:
+
+**Error Handling**: Use `Result<T, E>` for all fallible operations. The use of `.unwrap()` is prohibited in production code paths unless accompanied by documented safety invariants.
+
+**Documentation**: All public functions, types, and modules require comprehensive rustdoc comments including:
+
+- Purpose and behavior description
+- Parameter descriptions with types
+- Return value description
+- Error conditions
+- Usage examples where appropriate
+
+**Example**:
 
 ```rust
-// Good: Clear, documented, error-handled
-/// Calculate the reputation score for an agent
+/// Calculate the reputation score for an agent over a specified time window.
 /// 
 /// # Arguments
+/// 
 /// * `agent_id` - The unique identifier of the agent
-/// * `window` - Time window for reputation calculation
+/// * `window` - Time window in seconds for reputation calculation
 /// 
 /// # Returns
-/// * `Result<ReputationScore, ReputationError>` - Score or error
+/// 
+/// Returns `Ok(ReputationScore)` on success, or a `ReputationError` if the agent
+/// is not found or the window parameter is invalid.
+/// 
+/// # Errors
+/// 
+/// - `ReputationError::AgentNotFound` if the agent_id does not exist
+/// - `ReputationError::InvalidWindow` if window is zero or exceeds maximum
 pub fn calculate_reputation(
     agent_id: &AgentId,
     window: Duration,
 ) -> Result<ReputationScore, ReputationError> {
-    // Implementation with proper error handling
-    todo!()
-}
-
-// Bad: Unclear, undocumented, unwraps
-pub fn calc_rep(id: &str, w: u64) -> f64 {
-    let agent = get_agent(id).unwrap();
-    agent.score.unwrap()
+    // Implementation
 }
 ```
 
-#### General Rules
+**Testing**: Minimum 80% code coverage for new code. Critical paths require property-based tests using `proptest`.
 
-- Use descriptive variable names
-- Document all public APIs
-- Write tests for new functionality
-- Keep functions focused and small
-- Handle errors explicitly
+**Performance**: Document algorithmic complexity for non-trivial operations. Profile before optimizing.
 
-### 3. Commit Guidelines
+**Safety**: Minimize use of `unsafe` code. When necessary, provide detailed safety comments explaining the invariants that justify its use.
 
-We follow [Conventional Commits](https://www.conventionalcommits.org/):
+### Commit Message Format
+
+Commit messages must follow the Conventional Commits specification:
 
 ```
 type(scope): subject
@@ -76,206 +94,110 @@ body (optional)
 footer (optional)
 ```
 
-Types:
+**Types**:
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
-- `style`: Code style changes (formatting)
-- `refactor`: Code refactoring
+- `style`: Code style changes without functional impact
+- `refactor`: Code restructuring without behavior change
 - `perf`: Performance improvements
-- `test`: Test additions/changes
-- `chore`: Build process/auxiliary tool changes
+- `test`: Test additions or modifications
+- `chore`: Build process or tooling changes
 
-Examples:
-```bash
-feat(p2p): implement Q-routing algorithm
-fix(chain): resolve consensus stall under high load
-docs(sdk): add Python SDK examples
-perf(runtime): optimize WASM execution by 20%
+**Examples**:
+
+```
+feat(p2p): implement Q-routing algorithm for adaptive message routing
+fix(consensus): resolve finality stall under high validator churn
+docs(architecture): add formal verification section to technical specs
+perf(runtime): optimize WASM execution by eliminating redundant checks
 ```
 
-### 4. Pull Request Process
+### Pull Request Process
 
-1. **Update documentation** for any changed functionality
-2. **Add tests** that prove your fix/feature works
-3. **Update CHANGELOG.md** with notable changes
-4. **Ensure CI passes** all checks
-5. **Request review** from maintainers
-6. **Address feedback** promptly and professionally
+All pull requests must:
 
-#### PR Title Format
-```
-[Component] Brief description
+1. Include a clear description of the problem being solved and the approach taken
+2. Reference any related issues using GitHub's linking syntax
+3. Add or update tests that verify the correctness of the changes
+4. Update relevant documentation
+5. Pass all continuous integration checks including:
+   - Compilation without warnings
+   - All tests passing
+   - Code formatting (`cargo fmt --all -- --check`)
+   - Linting (`cargo clippy --all-targets --all-features -- -D warnings`)
 
-Examples:
-[Chain] Add VCG auction pallet
-[P2P] Fix message routing under partition
-[Docs] Improve agent development guide
-```
+Pull requests should be scoped to a single logical change. Large changes should be broken into a sequence of smaller, reviewable pull requests.
 
-#### PR Description Template
-```markdown
-## Description
-Brief description of changes
+## Code Review Standards
 
-## Motivation
-Why are these changes needed?
+All contributions undergo review by project maintainers. Reviewers will evaluate:
 
-## Changes
-- Change 1
-- Change 2
+- **Correctness**: Does the code correctly implement the intended behavior?
+- **Safety**: Are error conditions handled appropriately?
+- **Performance**: Are there obvious performance issues or scalability concerns?
+- **Maintainability**: Is the code clear and well-documented?
+- **Consistency**: Does the code adhere to project conventions?
 
-## Testing
-How has this been tested?
+Feedback should be addressed by updating the pull request. Once approved by at least one maintainer, changes will be merged.
 
-## Checklist
-- [ ] Tests added/updated
-- [ ] Documentation updated
-- [ ] CHANGELOG.md updated
-- [ ] No breaking changes OR migration guide provided
-```
+## Architecture Decision Records
 
-## 🧪 Testing Requirements
+Significant architectural changes require an Architecture Decision Record (ADR) documented in `docs/adr/`. The ADR should include:
+
+1. Context and motivation for the decision
+2. Alternatives considered with trade-offs
+3. Decision rationale
+4. Consequences and implications
+5. References to relevant literature or prior art
+
+ADRs are numbered sequentially and follow the template in `docs/adr/template.md`.
+
+## Security Considerations
+
+Contributors working on security-sensitive components should:
+
+- Review the threat model documented in `docs/security/threat-model.md`
+- Follow secure coding practices as outlined in the security guidelines
+- Consider adversarial scenarios and failure modes
+- Document security assumptions explicitly
+
+Critical vulnerabilities should be reported privately to security@ainur.ai rather than via public issues.
+
+## Testing Requirements
 
 ### Unit Tests
-- Test individual functions and modules
-- Aim for 80%+ coverage on new code
-- Use property-based testing where applicable
+
+- Test individual functions and modules in isolation
+- Cover both expected behavior and error conditions
+- Use property-based testing for mathematical properties
 
 ### Integration Tests
-- Test component interactions
-- Cover critical user journeys
-- Test error scenarios
 
-### Example Test
-```rust
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use proptest::prelude::*;
+- Verify interactions between components
+- Test realistic scenarios involving multiple layers
+- Include tests for failure injection and recovery
 
-    #[test]
-    fn test_reputation_calculation() {
-        let agent_id = AgentId::new();
-        let score = calculate_reputation(&agent_id, Duration::from_days(30))
-            .expect("Failed to calculate reputation");
-        
-        assert!(score.quality >= 0.0 && score.quality <= 100.0);
-    }
+### Performance Tests
 
-    proptest! {
-        #[test]
-        fn test_reputation_bounds(quality in 0.0..=100.0) {
-            let score = ReputationScore::new(quality);
-            prop_assert!(score.is_valid());
-        }
-    }
-}
-```
+- Benchmark critical paths to detect performance regressions
+- Document baseline performance expectations
+- Run benchmarks as part of continuous integration
 
-## 🏗️ Architecture Decisions
+## License
 
-For significant architectural changes:
+By contributing to Ainur Protocol, you agree that your contributions will be licensed under the same terms as the project: Apache License 2.0 and MIT License (dual license).
 
-1. Create an ADR (Architecture Decision Record) in `docs/adr/`
-2. Use template: `docs/adr/template.md`
-3. Discuss in issue before implementing
-4. Get consensus from core team
+## Questions
 
-## 🔒 Security Considerations
+For questions about contributing, contact the maintainers via:
 
-- Always consider security implications
-- Get security review for consensus/crypto changes
-- Follow secure coding practices
-- Report vulnerabilities privately to security@ainur.ai
-
-## 📊 Performance Guidelines
-
-- Profile before optimizing
-- Document performance characteristics
-- Add benchmarks for critical paths
-- Consider resource constraints (CPU, memory, network)
-
-## 🌍 Internationalization
-
-- Use string constants for user-facing text
-- Support UTF-8 throughout
-- Consider global users in UX decisions
-
-## 📝 Documentation Standards
-
-- Document all public APIs
-- Include examples in rustdoc
-- Keep README files updated
-- Write clear commit messages
-
-### Documentation Example
-```rust
-/// Performs a Vickrey-Clarke-Groves auction for task allocation.
-/// 
-/// This implements a truthful auction mechanism where agents are incentivized
-/// to bid their true valuations. The winning agents pay the externality they
-/// impose on other participants.
-/// 
-/// # Arguments
-/// 
-/// * `tasks` - List of tasks to be auctioned
-/// * `bids` - Map of (agent_id, task_id) to bid values
-/// * `constraints` - Additional constraints on allocation
-/// 
-/// # Returns
-/// 
-/// Returns `AuctionResult` containing allocations and payments, or an error
-/// if the auction cannot be completed.
-/// 
-/// # Example
-/// 
-/// ```rust
-/// let tasks = vec![task1, task2];
-/// let mut bids = HashMap::new();
-/// bids.insert((agent1, task1.id), Bid::new(100));
-/// 
-/// let result = run_vcg_auction(tasks, bids, Default::default())?;
-/// assert_eq!(result.allocations[&task1.id], agent1);
-/// ```
-/// 
-/// # Errors
-/// 
-/// - `AuctionError::InsufficientBids` - Not enough bids for allocation
-/// - `AuctionError::InvalidBid` - Bid violates constraints
-pub fn run_vcg_auction(
-    tasks: Vec<Task>,
-    bids: HashMap<(AgentId, TaskId), Bid>,
-    constraints: AuctionConstraints,
-) -> Result<AuctionResult, AuctionError> {
-    // Implementation
-    todo!()
-}
-```
-
-## 🤝 Code of Conduct
-
-All contributors must follow our [Code of Conduct](CODE_OF_CONDUCT.md). Be respectful, inclusive, and professional.
-
-## ❓ Getting Help
-
-- **Discord**: Join our [Discord server](https://discord.gg/ainur)
-- **Issues**: Check existing issues or create new ones
-- **Docs**: Read the [developer documentation](https://docs.ainur.ai)
-- **Office Hours**: Weekly community calls (see Discord for schedule)
-
-## 🎖️ Recognition
-
-Contributors are recognized in:
-- CONTRIBUTORS.md file
-- Release notes
-- Project website
-- Annual contributor report
-
-## 📄 License
-
-By contributing, you agree that your contributions will be licensed under the same license as the project (Apache 2.0 / MIT dual license).
+- GitHub Issues for technical questions
+- Discord for real-time discussion
+- Email conduct@ainur.ai for process or conduct questions
 
 ---
 
-Thank you for contributing to the future of decentralized AI coordination! 🚀
+**Last Updated**: November 2025  
+**Document Version**: 1.0

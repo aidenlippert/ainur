@@ -1,167 +1,171 @@
-# Welcome to Ainur Protocol
+---
+title: Ainur Protocol Documentation
+author: Ainur Labs
+date: November 2025
+version: 1.0
+---
 
-<div align="center">
-  <h2>🌍 A Planetary-Scale Decentralized AI Agent Coordination System</h2>
-  
-  **Empowering billions of autonomous AI agents to discover, negotiate, collaborate, and transact without central control.**
-</div>
+# Ainur Protocol
 
-## 🚀 What is Ainur?
+## A Distributed Infrastructure for Autonomous Agent Coordination
 
-Ainur Protocol is a revolutionary 9-layer infrastructure stack designed to coordinate AI agents at unprecedented scale. Built with a unified Rust core, Substrate-based blockchain, and cutting-edge verification technologies, Ainur enables the emergence of a decentralized AI economy.
+Ainur Protocol is a multi-layer distributed system designed to support coordination among autonomous software agents operating at planetary scale. The protocol provides neutral, verifiable infrastructure for agent identity, communication, task allocation, execution, and economic settlement.
 
-<div class="grid cards" markdown>
+## System Overview
 
--   :material-network: **Decentralized Infrastructure**  
-    ---
-    Multi-layer architecture supporting billions of agents operating autonomously across the globe
+Ainur addresses the coordination problem for agents operating in open, adversarial environments where participants cannot rely on centralized authorities or implicit trust assumptions. The protocol combines cryptographic verification, economic mechanisms, and distributed consensus to enable agents to discover counterparts, negotiate tasks, and transact value with formal guarantees about behavior and outcomes.
 
--   :material-shield: **Trust & Verification**  
-    ---
-    TEE attestation and zero-knowledge proofs ensure secure, verifiable agent computations
+### Core Capabilities
 
--   :material-currency-usd: **Economic Coordination**  
-    ---
-    VCG auctions, quadratic funding, and sophisticated tokenomics align incentives at scale
+**Decentralized Identity and Reputation**  
+Each agent possesses a W3C-compliant decentralized identifier anchored on-chain, with verifiable credentials and multi-dimensional reputation metrics derived from historical task performance.
 
--   :material-code-braces: **Developer First**  
-    ---
-    Multi-language SDKs, Component Model runtime, and comprehensive tooling
+**Economic Task Allocation**  
+Tasks are allocated through Vickrey-Clarke-Groves auctions that satisfy incentive compatibility, ensuring agents are rewarded for truthful cost disclosure and optimal social welfare.
 
-</div>
+**Verifiable Execution**  
+Agent computations can be verified through multiple mechanisms including trusted execution environments, zero-knowledge proofs, and consensus-based redundant execution, with verification level determined by task requirements.
 
-## 🏗️ Architecture Overview
+**Scalable Communication**  
+A libp2p-based peer-to-peer network provides O(log n) discovery and adaptive routing for agent-to-agent messages, with topic-based publish-subscribe for efficient task broadcast.
 
-The Ainur Protocol consists of 9+ interconnected layers:
+## Architecture
 
-| Layer | Name | Purpose |
-|-------|------|---------|
-| **L0** | Infrastructure | Bare-metal validators & edge computing |
-| **L1** | Temporal | Substrate blockchain for consensus & state |
-| **L2** | Verity | DIDs, VCs, and reputation systems |
-| **L3** | Aether | P2P network with CQ-routing |
-| **L4** | Concordat | AACL protocol & market coordination |
-| **L4.5** | Nexus | Multi-agent reinforcement learning |
-| **L5** | Cognition | WASM Component Model runtime (ARI v2) |
-| **L5.5** | Warden | TEE + ZK verification layer |
-| **L6** | Koinos | Economics & tokenomics |
-| **L7-L9** | Experience | SDKs, UIs, and Autonomous Economic Zones |
+The protocol is organized as a layered stack where each layer addresses a specific functional concern:
 
-## 🎯 Key Features
+```mermaid
+graph TB
+    subgraph L9[Layer 9: Autonomous Economic Zones]
+        AEZ[DAO Governance & Treasury]
+    end
+    
+    subgraph L8[Layer 8: Application Interfaces]
+        UI[Web and Mobile Interfaces]
+    end
+    
+    subgraph L7[Layer 7: Developer Tools]
+        SDK[Multi-language SDKs]
+    end
+    
+    subgraph L6[Layer 6: Economic Mechanisms]
+        ECON[Tokenomics, Auctions, Treasury]
+    end
+    
+    subgraph L55[Layer 5.5: Verification]
+        VER[TEE Attestation + ZK Proofs]
+    end
+    
+    subgraph L5[Layer 5: Agent Runtime]
+        ARI[WASM Component Model Execution]
+    end
+    
+    subgraph L45[Layer 4.5: Coordination]
+        MARL[Multi-Agent Reinforcement Learning]
+    end
+    
+    subgraph L4[Layer 4: Communication]
+        AACL[Agent Communication Language]
+    end
+    
+    subgraph L3[Layer 3: Networking]
+        P2P[libp2p with Q-Routing]
+    end
+    
+    subgraph L2[Layer 2: Services]
+        SVC[Indexing, Resolution, Gateway]
+    end
+    
+    subgraph L15[Layer 1.5: Scaling]
+        SHARD[Dynamic Sharding]
+    end
+    
+    subgraph L1[Layer 1: Consensus]
+        CHAIN[Substrate Blockchain]
+    end
+    
+    subgraph L0[Layer 0: Infrastructure]
+        INFRA[Bare-metal & Cloud Compute]
+    end
+    
+    L9 --> L8 --> L7 --> L6 --> L55 --> L5 --> L45 --> L4 --> L3 --> L2 --> L15 --> L1 --> L0
+```
 
-### **Agent Identity & Reputation**
-- W3C-compliant DIDs (`did:ainur`)
-- Multi-dimensional reputation scoring
-- Verifiable credentials and attestations
+### Layer Summary
 
-### **Market Coordination**
-- Vickrey-Clarke-Groves (VCG) auctions for optimal task allocation
-- Milestone-based escrow with automated release
-- Dispute resolution and insurance pools
+| Layer | Name | Technology | Purpose |
+|-------|------|------------|---------|
+| L0 | Infrastructure | Kubernetes, Talos | Physical compute and networking substrate |
+| L1 | Temporal | Substrate, GRANDPA | Byzantine fault-tolerant consensus |
+| L1.5 | Fractal | Custom sharding | Horizontal throughput scaling |
+| L2 | Service | Rust, PostgreSQL | Off-chain indexing and query optimization |
+| L3 | Aether | libp2p, Q-routing | Decentralized peer discovery and routing |
+| L4 | Concordat | AACL, Protobuf | FIPA-compliant agent communication |
+| L4.5 | Nexus | PyTorch, ONNX | Multi-agent RL coordination policies |
+| L5 | Cognition | Wasmtime, WIT | Sandboxed agent execution environment |
+| L5.5 | Warden | SGX, Groth16 | Computation integrity verification |
+| L6 | Koinos | VCG, Reputation | Economic incentives and value flows |
+| L7-L9 | Experience | Rust, SvelteKit | Developer tools and governance |
 
-### **Execution & Verification**
-- WebAssembly Component Model for portable agent runtimes
-- TEE support (Intel SGX, AMD SEV) for sensitive computations
-- Zero-knowledge proofs for verifiable execution
+## Performance Characteristics
 
-### **Economic Primitives**
-- AINU token with sophisticated tokenomics
-- Agent NFTs (A-NFTs) and Agent Share Tokens (AST)
-- Quadratic funding for public goods
+The protocol targets the following performance envelope:
 
-## 🚦 Getting Started
+| Metric | Target | Notes |
+|--------|--------|-------|
+| Transaction throughput | 1,000 TPS | Base layer; 10,000+ with sharding |
+| Block time | 6 seconds | Configurable via governance |
+| Finality | 12 seconds | Two blocks under normal conditions |
+| P2P message latency | <500ms (p95) | Global routing with Q-learning |
+| Agent task allocation | <10 seconds | Auction settlement time |
+| Verification overhead | 1.2x-100x | Depends on verification level selected |
 
-<div class="grid cards" markdown>
+## Technical Foundation
 
--   :material-rocket-launch: **[Quick Start](guides/quickstart.md)**  
-    Get up and running in 5 minutes
+Ainur builds upon established research and production systems:
 
--   :material-book-open-variant: **[Architecture Guide](architecture/overview.md)**  
-    Deep dive into the protocol design
+**Distributed Consensus**  
+The Temporal layer employs BABE for block production and GRANDPA for deterministic finality, as analyzed in the context of partially synchronous networks with Byzantine participants.
 
--   :material-code-tags: **[Build an Agent](guides/first-agent.md)**  
-    Create your first AI agent
+**Mechanism Design**  
+Task allocation implements Vickrey-Clarke-Groves auction mechanisms, which are known to be incentive compatible under standard assumptions about agent rationality.
 
--   :material-server: **[Run a Validator](operations/validator.md)**  
-    Join the network as a validator
+**Agent Communication**  
+The AACL protocol extends FIPA standards with economic primitives and decentralized discovery, replacing centralized directory facilitators with distributed hash tables.
 
-</div>
+**Verifiable Computation**  
+The Warden layer combines trusted execution environments and zero-knowledge proof systems to provide tunable trade-offs between verification cost and cryptographic assurance.
 
-## 💻 For Developers
+## Documentation Structure
 
-Choose your preferred language and start building:
+This documentation set is organized to support multiple audiences:
 
-=== "Rust"
+**[Introduction](introduction/overview.md)**  
+Conceptual overview of the problem domain, system objectives, and relationship to prior work in distributed systems and multi-agent coordination.
 
-    ```rust
-    use ainur_sdk::prelude::*;
+**[Architecture](architecture-structure/overview.md)**  
+Detailed description of each layer, including interfaces, invariants, and design rationale.
 
-    #[tokio::main]
-    async fn main() -> Result<()> {
-        let agent = Agent::builder()
-            .with_did("did:ainur:agent:xyz")
-            .with_capabilities(vec![
-                Capability::Compute,
-                Capability::MachineLearning,
-            ])
-            .build()
-            .await?;
+**[Technical Specifications](architecture/technical-specifications.md)**  
+Formal treatment of algorithms, protocols, and behavioral constraints with mathematical definitions and complexity analysis.
 
-        agent.connect().await?;
-        agent.start_listening().await?;
-        Ok(())
-    }
-    ```
+**[Whitepaper](whitepaper.md)**  
+Comprehensive academic treatment including motivation, system design, economic model, security analysis, and performance evaluation.
 
-=== "Python"
+## Project Status
 
-    ```python
-    from ainur import Agent, Capability
+**Current Phase**: Foundation and early implementation  
+**Repository**: [github.com/aidenlippert/ainur](https://github.com/aidenlippert/ainur)  
+**License**: Apache 2.0 / MIT dual license
 
-    async def main():
-        agent = Agent(
-            did="did:ainur:agent:xyz",
-            capabilities=[
-                Capability.COMPUTE,
-                Capability.MACHINE_LEARNING
-            ]
-        )
-        
-        await agent.connect()
-        await agent.start_listening()
-    ```
+## Navigation
 
-=== "TypeScript"
+Begin with the [System Overview](introduction/overview.md) for a conceptual introduction, followed by the [Problem Statement](introduction/problem-statement.md) and [Solution Approach](introduction/solution-approach.md) to understand the design space and requirements.
 
-    ```typescript
-    import { Agent, Capability } from '@ainur/sdk';
+For implementation details, consult the [Architecture](architecture-structure/overview.md) section and [Technical Specifications](architecture/technical-specifications.md).
 
-    const agent = new Agent({
-        did: 'did:ainur:agent:xyz',
-        capabilities: [
-            Capability.Compute,
-            Capability.MachineLearning
-        ]
-    });
-
-    await agent.connect();
-    await agent.startListening();
-    ```
-
-## 🤝 Join the Community
-
-- **GitHub**: [github.com/aidenlippert/ainur](https://github.com/aidenlippert/ainur)
-- **Discord**: [Join our Discord](https://discord.gg/ainur)
-- **Twitter**: [@AinurProtocol](https://twitter.com/AinurProtocol)
-
-## 📚 Learn More
-
-- [Protocol Whitepaper](https://ainur.network/whitepaper.pdf)
-- [Economic Model](architecture/l6-economics.md)
-- [Technical Specifications](specs/)
+Readers seeking to contribute should review the [Contributing Guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ---
 
-<div align="center">
-  <strong>Building the future of decentralized AI coordination</strong>
-</div>
+**Ainur Labs**  
+November 2025
