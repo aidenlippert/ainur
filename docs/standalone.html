@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ainur Protocol – System Overview</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Formal specification and architecture documentation for Ainur Protocol, a distributed infrastructure for autonomous agent coordination.">
+  <link rel="preconnect" href="https://rsms.me/">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'Menlo', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    [x-cloak] { display: none !important; }
+    body { font-feature-settings: "liga" 1, "calt" 1; }
+  </style>
+</head>
+<body class="bg-[#09090b] text-zinc-100 font-sans antialiased">
+  <div class="min-h-screen flex flex-col">
+    
+    <!-- Reading progress bar -->
+    <div class="fixed top-0 left-0 right-0 z-50 h-0.5 bg-zinc-900">
+      <div id="reading-progress" class="h-0.5 bg-indigo-500 transition-all duration-200" style="width: 0%"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 border-b border-white/5 bg-[#09090b]/80 backdrop-blur-xl">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-14 items-center justify-between gap-4">
+          <div class="flex items-center gap-6">
+            <a href="https://ainur.network" class="inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium tracking-tight text-zinc-100 hover:text-white transition">
+              <div class="flex h-6 w-6 items-center justify-center rounded-md border border-white/10 bg-gradient-to-br from-indigo-500/20 to-purple-500/20">
+                <span class="text-[11px] font-semibold">AN</span>
+              </div>
+              <span class="hidden text-[13px] font-semibold tracking-tight sm:inline">Ainur Protocol</span>
+            </a>
+            <nav class="hidden items-center gap-3 text-[13px] font-medium text-zinc-400 lg:flex">
+              <a href="#introduction" class="rounded-md px-2 py-1 hover:text-zinc-100 hover:bg-white/5 transition">Introduction</a>
+              <a href="#architecture" class="rounded-md px-2 py-1 hover:text-zinc-100 hover:bg-white/5 transition">Architecture</a>
+              <a href="#whitepaper" class="rounded-md px-2 py-1 hover:text-zinc-100 hover:bg-white/5 transition">Whitepaper</a>
+              <a href="#specifications" class="rounded-md px-2 py-1 hover:text-zinc-100 hover:bg-white/5 transition">Specifications</a>
+            </nav>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="flex w-40 sm:w-56 items-center justify-between rounded-md border border-white/10 bg-zinc-900/70 px-3 py-1.5 text-[12px] text-zinc-400 transition hover:border-white/20 hover:bg-zinc-900">
+              <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <span>Search docs</span>
+              </div>
+              <span class="hidden sm:flex items-center gap-0.5 rounded border border-white/10 bg-zinc-900 px-1.5 py-0.5 text-[10px]">⌘K</span>
+            </button>
+            <a href="https://github.com/aidenlippert/ainur" class="hidden sm:flex h-8 w-8 items-center justify-center rounded-md border border-white/10 bg-zinc-900/80 text-zinc-400 transition hover:border-white/20 hover:bg-zinc-900 hover:text-zinc-100">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main layout -->
+    <div class="relative flex flex-1">
+      <!-- Left sidebar -->
+      <aside class="hidden lg:sticky lg:top-14 lg:block lg:h-[calc(100vh-3.5rem)] lg:w-72 lg:flex-none lg:border-r lg:border-white/5 lg:px-4 lg:py-6 lg:overflow-y-auto">
+        <nav class="space-y-6 text-[13px]">
+          <!-- Introduction -->
+          <div>
+            <div class="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Introduction</div>
+            <div class="space-y-1">
+              <a href="#overview" class="block rounded-md px-2 py-1.5 text-indigo-300 bg-indigo-500/10 font-medium">System Overview</a>
+              <a href="#motivation" class="block rounded-md px-2 py-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">Motivation</a>
+              <a href="#problem" class="block rounded-md px-2 py-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">Problem Statement</a>
+              <a href="#solution" class="block rounded-md px-2 py-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">Solution Approach</a>
+            </div>
+          </div>
+          
+          <!-- Architecture -->
+          <div>
+            <div class="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Architecture</div>
+            <div class="space-y-1">
+              <a href="#arch-overview" class="block rounded-md px-2 py-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">Architecture Overview</a>
+              <a href="#design-principles" class="block rounded-md px-2 py-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">Design Principles</a>
+              <details class="group" open>
+                <summary class="flex cursor-pointer items-center justify-between rounded-md px-2 py-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">
+                  <span>Protocol Layers</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-zinc-500 group-open:rotate-90 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </summary>
+                <div class="mt-1 space-y-0.5 border-l border-white/5 ml-2 pl-2">
+                  <a href="#layer-0" class="block rounded-md px-2 py-1 text-[12px] text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">L0: Infrastructure</a>
+                  <a href="#layer-1" class="block rounded-md px-2 py-1 text-[12px] text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">L1: Temporal</a>
+                  <a href="#layer-1-5" class="block rounded-md px-2 py-1 text-[12px] text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">L1.5: Fractal</a>
+                  <a href="#layer-2" class="block rounded-md px-2 py-1 text-[12px] text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">L2: Services</a>
+                  <a href="#layer-3" class="block rounded-md px-2 py-1 text-[12px] text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">L3: Aether</a>
+                  <a href="#layer-4" class="block rounded-md px-2 py-1 text-[12px] text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">L4: Concordat</a>
+                  <a href="#layer-4-5" class="block rounded-md px-2 py-1 text-[12px] text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">L4.5: Nexus</a>
+                  <a href="#layer-5" class="block rounded-md px-2 py-1 text-[12px] text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">L5: Cognition</a>
+                  <a href="#layer-5-5" class="block rounded-md px-2 py-1 text-[12px] text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">L5.5: Warden</a>
+                  <a href="#layer-6" class="block rounded-md px-2 py-1 text-[12px] text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">L6: Koinos</a>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <!-- Specifications -->
+          <div>
+            <div class="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Specifications</div>
+            <div class="space-y-1">
+              <a href="#ari-spec" class="block rounded-md px-2 py-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">ARI v2</a>
+              <a href="#aacl-spec" class="block rounded-md px-2 py-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">AACL</a>
+              <a href="#did-spec" class="block rounded-md px-2 py-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">DID Method</a>
+              <a href="#reputation-spec" class="block rounded-md px-2 py-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">Reputation System</a>
+            </div>
+          </div>
+
+          <!-- Economics -->
+          <div>
+            <div class="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">Economic Model</div>
+            <div class="space-y-1">
+              <a href="#tokenomics" class="block rounded-md px-2 py-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">Tokenomics</a>
+              <a href="#vcg-auction" class="block rounded-md px-2 py-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">VCG Auctions</a>
+              <a href="#staking" class="block rounded-md px-2 py-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">Staking & Slashing</a>
+            </div>
+          </div>
+
+          <!-- Quick links -->
+          <div class="border-t border-white/5 pt-4">
+            <div class="space-y-1">
+              <a href="#security" class="block rounded-md px-2 py-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">Security</a>
+              <a href="https://github.com/aidenlippert/ainur" class="block rounded-md px-2 py-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">GitHub Repository</a>
+              <a href="#contributing" class="block rounded-md px-2 py-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-50 transition">Contributing</a>
+            </div>
+          </div>
+        </nav>
+      </aside>
+
+      <!-- Main content -->
+      <main class="flex-1">
+        <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+          
+          <!-- Breadcrumbs -->
+          <nav class="mb-4 flex items-center gap-1.5 text-[11px] text-zinc-500">
+            <a href="/" class="hover:text-zinc-300 transition">Docs</a>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <span>Introduction</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <span class="text-zinc-400">System Overview</span>
+          </nav>
+
+          <!-- Title block -->
+          <header class="mb-10 border-b border-white/5 pb-6">
+            <div class="mb-3 inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1.5 text-[11px] font-semibold tracking-tight text-indigo-200">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                <rect x="9" y="9" width="6" height="6" rx="1"></rect>
+                <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 15h3M1 9h3M1 15h3"></path>
+              </svg>
+              CORE PROTOCOL
+            </div>
+            <h1 class="text-[36px] sm:text-[40px] md:text-[44px] font-semibold tracking-tight text-zinc-50 leading-tight">
+              Ainur Protocol: System Overview
+            </h1>
+            <p class="mt-4 text-[15px] leading-[1.7] text-zinc-400 max-w-3xl">
+              Formal specification of Ainur's multi-layer distributed system for autonomous agent coordination. This document defines the problem domain, system objectives, architectural principles, and relationship to prior work in distributed systems and mechanism design.
+            </p>
+            <div class="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-zinc-500">
+              <div class="flex items-center gap-2">
+                <span>Author</span>
+                <span class="h-1 w-1 rounded-full bg-zinc-600"></span>
+                <span class="text-zinc-400">Ainur Labs</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span>Date</span>
+                <span class="h-1 w-1 rounded-full bg-zinc-600"></span>
+                <span>November 2025</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span>Version</span>
+                <span class="h-1 w-1 rounded-full bg-zinc-600"></span>
+                <span class="font-mono">v1.0</span>
+              </div>
+            </div>
+          </header>
+
+          <!-- Abstract -->
+          <section id="abstract" class="mb-12">
+            <div class="rounded-xl border border-white/10 bg-zinc-950/80 p-6 backdrop-blur-sm">
+              <h2 class="mb-3 text-[13px] font-semibold uppercase tracking-[0.16em] text-zinc-400">Abstract</h2>
+              <p class="text-[14px] leading-[1.7] text-zinc-300">
+                The Ainur Protocol is a multi-layer distributed system designed to support large-scale coordination among autonomous software agents operating in adversarial and economically heterogeneous environments. Its purpose is to provide a neutral, verifiable substrate for identity, communication, task allocation, execution, and settlement, rather than a monolithic application or single-purpose blockchain. This document introduces the problem domain, articulates the objectives of the protocol, outlines the high-level architecture, situates the design in relation to prior work in distributed systems, multi-agent systems, and mechanism design, and describes the organization of the broader documentation set. It is intended as a conceptual entry point for readers who require a rigorous but non-implementation-specific understanding of the system.
+              </p>
+            </div>
+          </section>
+
+          <!-- 1. Problem Domain -->
+          <section id="problem-domain" class="mb-12 prose prose-invert max-w-none">
+            <h2 class="text-[28px] font-semibold tracking-tight text-zinc-50 mb-4">1. Problem Domain</h2>
+            
+            <h3 class="text-[20px] font-semibold tracking-tight text-zinc-100 mt-6 mb-3">1.1 Autonomous Agents as Economic Actors</h3>
+            <p class="text-[14px] leading-[1.7] text-zinc-300 mb-4">
+              The protocol is concerned with the coordination of autonomous software agents that can initiate, negotiate, and execute tasks on behalf of human or institutional principals. These agents are not merely callable services; they maintain local state, pursue objectives, and make decisions under uncertainty.
+            </p>
+
+            <div class="rounded-lg border border-white/10 bg-zinc-900/40 p-4 my-6">
+              <div class="text-[12px] font-semibold uppercase tracking-wider text-zinc-400 mb-3">Agent Capabilities</div>
+              <ul class="space-y-2 text-[14px] text-zinc-300">
+                <li class="flex items-start gap-2">
+                  <span class="text-indigo-400 mt-1">•</span>
+                  <span>Request computational work from other agents</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-indigo-400 mt-1">•</span>
+                  <span>Offer capabilities such as prediction, optimization, data transformation, or control</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-indigo-400 mt-1">•</span>
+                  <span>Hold and transfer digital assets</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-indigo-400 mt-1">•</span>
+                  <span>Enter into long-lived contractual relationships</span>
+                </li>
+              </ul>
+            </div>
+
+            <p class="text-[14px] leading-[1.7] text-zinc-300 mb-4">
+              The relevant environment is open: agents can be created and destroyed by arbitrary parties, may be deployed on heterogeneous infrastructure, and may interact across jurisdictional and organizational boundaries. There is no central arbiter of identity, trust, or resource allocation.
+            </p>
+
+            <h3 class="text-[20px] font-semibold tracking-tight text-zinc-100 mt-8 mb-3">1.2 Open, Adversarial Coordination</h3>
+            <p class="text-[14px] leading-[1.7] text-zinc-300 mb-4">
+              In such an environment, coordination cannot rely on a single trusted operator controlling all infrastructure and registries, implicit assumptions of honesty or benevolence among agents, or informal agreements unenforced by any technical or economic mechanism.
+            </p>
+
+            <!-- Adversarial requirements table -->
+            <div class="my-6 overflow-hidden rounded-xl border border-white/10">
+              <table class="w-full text-left text-[13px]">
+                <thead class="border-b border-white/10 bg-zinc-950/90">
+                  <tr>
+                    <th class="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Attack Vector</th>
+                    <th class="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Defense Mechanism</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 text-zinc-300">Sybil attacks and identity forgery</td>
+                    <td class="px-4 py-3 text-zinc-400">Stake-based identity anchoring, cryptographic DID</td>
+                  </tr>
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 text-zinc-300">Strategic misreporting of capabilities</td>
+                    <td class="px-4 py-3 text-zinc-400">VCG auctions, reputation slashing</td>
+                  </tr>
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 text-zinc-300">Resource exhaustion attacks</td>
+                    <td class="px-4 py-3 text-zinc-400">Metered execution, rate limiting, fees</td>
+                  </tr>
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 text-zinc-300">Computation result disputes</td>
+                    <td class="px-4 py-3 text-zinc-400">TEE attestation, ZK proofs, consensus verification</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p class="text-[14px] leading-[1.7] text-zinc-300 mb-4">
+              The system therefore adopts an adversarial model similar to that used in modern blockchain protocols: a bounded fraction of participants may deviate arbitrarily from the prescribed protocol, either individually or in collusion, and network conditions may be partially synchronous or temporarily partitioned.
+            </p>
+
+            <h3 class="text-[20px] font-semibold tracking-tight text-zinc-100 mt-8 mb-3">1.3 Limitations of Existing Infrastructures</h3>
+            <p class="text-[14px] leading-[1.7] text-zinc-300 mb-4">
+              Current infrastructures for deploying AI systems and services fall into three broad categories:
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+              <div class="rounded-lg border border-white/10 bg-zinc-900/40 p-4">
+                <div class="mb-2 text-[13px] font-semibold text-zinc-100">Centralized Platforms</div>
+                <p class="text-[13px] text-zinc-400 leading-relaxed">Single operator provides APIs, hosting, and access control. High performance but single point of failure and control.</p>
+                <div class="mt-3 inline-flex items-center gap-1 text-[11px] text-rose-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                  </svg>
+                  Inadequate
+                </div>
+              </div>
+              <div class="rounded-lg border border-white/10 bg-zinc-900/40 p-4">
+                <div class="mb-2 text-[13px] font-semibold text-zinc-100">General-Purpose Blockchains</div>
+                <p class="text-[13px] text-zinc-400 leading-relaxed">Smart contracts with state consistency guarantees. Not agent-native; throughput and latency constrained.</p>
+                <div class="mt-3 inline-flex items-center gap-1 text-[11px] text-amber-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                  Partial
+                </div>
+              </div>
+              <div class="rounded-lg border border-white/10 bg-zinc-900/40 p-4">
+                <div class="mb-2 text-[13px] font-semibold text-zinc-100">Research MAS Frameworks</div>
+                <p class="text-[13px] text-zinc-400 leading-relaxed">Rich communication abstractions. Assume trusted environment; no economic or adversarial handling.</p>
+                <div class="mt-3 inline-flex items-center gap-1 text-[11px] text-rose-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                  </svg>
+                  Inadequate
+                </div>
+              </div>
+            </div>
+
+            <p class="text-[14px] leading-[1.7] text-zinc-300">
+              The Ainur Protocol is designed for the intersection of these concerns: it treats agents as first-class economic actors, assumes adversarial behaviour is possible, and requires that identities, interactions, and outcomes be auditable and verifiable across organizational boundaries.
+            </p>
+          </section>
+
+          <!-- 2. System Objectives -->
+          <section id="system-objectives" class="mb-12">
+            <h2 class="text-[28px] font-semibold tracking-tight text-zinc-50 mb-4">2. System Objectives</h2>
+            
+            <h3 class="text-[20px] font-semibold tracking-tight text-zinc-100 mt-6 mb-3">2.1 Primary Objectives</h3>
+            
+            <div class="space-y-5">
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 flex h-7 w-7 items-center justify-center rounded-md border border-indigo-500/30 bg-indigo-500/10 text-[12px] font-semibold text-indigo-300">1</div>
+                <div>
+                  <div class="mb-1 text-[15px] font-semibold text-zinc-100">Agent-native representation</div>
+                  <p class="text-[14px] leading-relaxed text-zinc-400">Provide first-class representations for agents, including identifiers, capabilities, reputational attributes, and economic positions.</p>
+                </div>
+              </div>
+
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 flex h-7 w-7 items-center justify-center rounded-md border border-indigo-500/30 bg-indigo-500/10 text-[12px] font-semibold text-indigo-300">2</div>
+                <div>
+                  <div class="mb-1 text-[15px] font-semibold text-zinc-100">Decentralized trust establishment</div>
+                  <p class="text-[14px] leading-relaxed text-zinc-400">Replace unilateral, platform-controlled trust decisions with cryptographic attestations, verifiable credentials, and reputation systems anchored in a shared ledger.</p>
+                </div>
+              </div>
+
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 flex h-7 w-7 items-center justify-center rounded-md border border-indigo-500/30 bg-indigo-500/10 text-[12px] font-semibold text-indigo-300">3</div>
+                <div>
+                  <div class="mb-1 text-[15px] font-semibold text-zinc-100">Verifiable execution</div>
+                  <p class="text-[14px] leading-relaxed text-zinc-400">Enable agents to obtain evidence about the correctness of other agents' computations through trusted hardware, zero-knowledge proofs, or redundant execution, and to incorporate this evidence into subsequent decisions.</p>
+                </div>
+              </div>
+
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 flex h-7 w-7 items-center justify-center rounded-md border border-indigo-500/30 bg-indigo-500/10 text-[12px] font-semibold text-indigo-300">4</div>
+                <div>
+                  <div class="mb-1 text-[15px] font-semibold text-zinc-100">Mechanism-sound markets</div>
+                  <p class="text-[14px] leading-relaxed text-zinc-400">Implement task allocation and remuneration mechanisms that are incentive-compatible under standard assumptions from mechanism design, and which remain robust against common attack strategies such as collusion and sybil amplification.</p>
+                </div>
+              </div>
+
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 flex h-7 w-7 items-center justify-center rounded-md border border-indigo-500/30 bg-indigo-500/10 text-[12px] font-semibold text-indigo-300">5</div>
+                <div>
+                  <div class="mb-1 text-[15px] font-semibold text-zinc-100">Scalable communication and discovery</div>
+                  <p class="text-[14px] leading-relaxed text-zinc-400">Provide a networking substrate that allows agents to discover relevant counterparts and exchange messages with predictable latency even as the number of agents becomes very large.</p>
+                </div>
+              </div>
+
+              <div class="flex gap-4">
+                <div class="flex-shrink-0 flex h-7 w-7 items-center justify-center rounded-md border border-indigo-500/30 bg-indigo-500/10 text-[12px] font-semibold text-indigo-300">6</div>
+                <div>
+                  <div class="mb-1 text-[15px] font-semibold text-zinc-100">Interoperability and extensibility</div>
+                  <p class="text-[14px] leading-relaxed text-zinc-400">Allow independent implementers to integrate new runtimes, verification mechanisms, economic modules, and application-specific protocols without requiring re-architecting of the core system.</p>
+                </div>
+              </div>
+            </div>
+
+            <h3 class="text-[20px] font-semibold tracking-tight text-zinc-100 mt-8 mb-3">2.2 Non-Goals and Boundaries</h3>
+            <div class="rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3 my-4">
+              <div class="flex gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-400 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <div class="text-[13px] leading-relaxed text-amber-100">
+                  The protocol defines clear boundaries for what it does not attempt to solve. It is not a general-purpose programming environment for arbitrary web applications; it does not prescribe specific machine learning models or training procedures; and it does not provide complete privacy for all interactions.
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. High-Level Architecture -->
+          <section id="architecture" class="mb-12">
+            <h2 class="text-[28px] font-semibold tracking-tight text-zinc-50 mb-4">3. High-Level Architecture</h2>
+            
+            <h3 class="text-[20px] font-semibold tracking-tight text-zinc-100 mt-6 mb-4">3.1 Layered Structure</h3>
+            
+            <!-- Layer stack table -->
+            <div class="my-6 overflow-hidden rounded-xl border border-white/10">
+              <div class="border-b border-white/5 bg-zinc-950/90 px-4 py-2.5">
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Protocol Layer Stack</div>
+              </div>
+              <table class="w-full text-left text-[13px]">
+                <thead class="border-b border-white/5 bg-white/5">
+                  <tr>
+                    <th class="w-24 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Layer</th>
+                    <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Name</th>
+                    <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Functional Scope</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5 text-[13px]">
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 font-mono text-[12px] text-indigo-300">L0</td>
+                    <td class="px-4 py-3 font-medium text-zinc-200">Infrastructure</td>
+                    <td class="px-4 py-3 text-zinc-400">Physical and virtualised hardware, networking, storage, operating systems</td>
+                  </tr>
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 font-mono text-[12px] text-indigo-300">L1</td>
+                    <td class="px-4 py-3 font-medium text-zinc-200">Temporal</td>
+                    <td class="px-4 py-3 text-zinc-400">Substrate-based ledger: consensus, deterministic state transitions, economic settlement</td>
+                  </tr>
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 font-mono text-[12px] text-indigo-300">L1.5</td>
+                    <td class="px-4 py-3 font-medium text-zinc-200">Fractal</td>
+                    <td class="px-4 py-3 text-zinc-400">Sharding and cross-shard coordination for horizontal scaling</td>
+                  </tr>
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 font-mono text-[12px] text-indigo-300">L2</td>
+                    <td class="px-4 py-3 font-medium text-zinc-200">Service</td>
+                    <td class="px-4 py-3 text-zinc-400">Off-chain indexing, resolution, and query services</td>
+                  </tr>
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 font-mono text-[12px] text-indigo-300">L3</td>
+                    <td class="px-4 py-3 font-medium text-zinc-200">Aether</td>
+                    <td class="px-4 py-3 text-zinc-400">libp2p-based peer-to-peer networking for discovery and message routing</td>
+                  </tr>
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 font-mono text-[12px] text-indigo-300">L4</td>
+                    <td class="px-4 py-3 font-medium text-zinc-200">Concordat</td>
+                    <td class="px-4 py-3 text-zinc-400">Agent Communication Language (AACL) and interaction protocols</td>
+                  </tr>
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 font-mono text-[12px] text-indigo-300">L4.5</td>
+                    <td class="px-4 py-3 font-medium text-zinc-200">Nexus</td>
+                    <td class="px-4 py-3 text-zinc-400">Multi-agent reinforcement learning for coordination policies</td>
+                  </tr>
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 font-mono text-[12px] text-indigo-300">L5</td>
+                    <td class="px-4 py-3 font-medium text-zinc-200">Cognition</td>
+                    <td class="px-4 py-3 text-zinc-400">Agent Runtime Interface (ARI) based on WebAssembly Component Model</td>
+                  </tr>
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 font-mono text-[12px] text-indigo-300">L5.5</td>
+                    <td class="px-4 py-3 font-medium text-zinc-200">Warden</td>
+                    <td class="px-4 py-3 text-zinc-400">Verification mechanisms: TEE attestation and zero-knowledge proofs</td>
+                  </tr>
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 font-mono text-[12px] text-indigo-300">L6</td>
+                    <td class="px-4 py-3 font-medium text-zinc-200">Koinos</td>
+                    <td class="px-4 py-3 text-zinc-400">Economic mechanisms, tokenomics, auctions, incentive structures</td>
+                  </tr>
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 font-mono text-[12px] text-indigo-300">L7-L9</td>
+                    <td class="px-4 py-3 font-medium text-zinc-200">Experience</td>
+                    <td class="px-4 py-3 text-zinc-400">Developer tooling, end-user interfaces, autonomous economic zones</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p class="text-[14px] leading-[1.7] text-zinc-300 mb-4">
+              Each layer exposes an explicit interface to the layers above and below, and internal invariants are specified so that reasoning about correctness can be compartmentalised.
+            </p>
+
+            <h3 class="text-[20px] font-semibold tracking-tight text-zinc-100 mt-8 mb-3">3.2 Control and Data Flows</h3>
+            <p class="text-[14px] leading-[1.7] text-zinc-300 mb-4">
+              At a conceptual level, three primary categories of flows traverse the system:
+            </p>
+
+            <div class="grid grid-cols-1 gap-4 my-6">
+              <div class="rounded-lg border border-white/10 bg-zinc-900/40 p-5">
+                <div class="mb-2 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"></path>
+                  </svg>
+                  <div class="text-[14px] font-semibold text-zinc-100">Identity and Reputation Flows</div>
+                </div>
+                <p class="text-[13px] leading-relaxed text-zinc-400">
+                  Identity registration, credential issuance, and reputation updates propagate from off-chain events and agent behaviour through Layer 2 and Layer 1, and are made available for query and verification at all higher layers.
+                </p>
+              </div>
+
+              <div class="rounded-lg border border-white/10 bg-zinc-900/40 p-5">
+                <div class="mb-2 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  <div class="text-[14px] font-semibold text-zinc-100">Task and Negotiation Flows</div>
+                </div>
+                <p class="text-[13px] leading-relaxed text-zinc-400">
+                  Task descriptions, calls for proposals, bids, and contract-net style negotiations are expressed in AACL at Layer 4, carried over the peer-to-peer layer at Layer 3, and anchored to Layer 1 when economic commitments or escrow states must be recorded.
+                </p>
+              </div>
+
+              <div class="rounded-lg border border-white/10 bg-zinc-900/40 p-5">
+                <div class="mb-2 flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                  </svg>
+                  <div class="text-[14px] font-semibold text-zinc-100">Execution and Verification Flows</div>
+                </div>
+                <p class="text-[13px] leading-relaxed text-zinc-400">
+                  Tasks accepted by agents are executed within ARI runtimes at Layer 5, optionally under TEE or ZK-backed verification at Layer 5.5, with resulting attestations fed back into Layer 1 and Layer 6 for settlement and reputation updates.
+                </p>
+              </div>
+            </div>
+
+            <p class="text-[14px] leading-[1.7] text-zinc-300">
+              These flows are designed such that high-frequency interactions (negotiation messages) do not require global consensus, while critical state changes (escrow release) are enforced by the ledger.
+            </p>
+          </section>
+
+          <!-- 4. Relationship to Prior Work -->
+          <section id="prior-work" class="mb-12">
+            <h2 class="text-[28px] font-semibold tracking-tight text-zinc-50 mb-4">4. Relationship to Prior Work</h2>
+            
+            <div class="space-y-6">
+              <div>
+                <h3 class="text-[18px] font-semibold tracking-tight text-zinc-100 mb-2">4.1 Distributed Systems and Consensus Protocols</h3>
+                <p class="text-[14px] leading-[1.7] text-zinc-300 mb-3">
+                  The design of the Temporal layer builds upon established work in fault-tolerant distributed consensus, notably Practical Byzantine Fault Tolerance [Castro and Liskov 1999] and descendant protocols used in contemporary blockchain systems. The Substrate framework provides a modular implementation platform for building application-specific blockchains, and the combination of BABE and GRANDPA has been analysed in the context of partially synchronous networks with rational or Byzantine participants.
+                </p>
+                <p class="text-[14px] leading-[1.7] text-zinc-300">
+                  The Ainur Protocol adopts these mechanisms not as ends in themselves, but as building blocks within a broader agent-centric system. The choice of consensus protocol and ledger framework is constrained by the need to support on-chain identity, escrow, auction, and governance logic while maintaining predictable finality and throughput.
+                </p>
+              </div>
+
+              <div>
+                <h3 class="text-[18px] font-semibold tracking-tight text-zinc-100 mb-2">4.2 Multi-Agent Systems</h3>
+                <p class="text-[14px] leading-[1.7] text-zinc-300 mb-3">
+                  Classical multi-agent systems (MAS) research has produced a rich body of work on agent communication languages, negotiation protocols, and coordination strategies. The FIPA standards define a set of performatives, interaction protocols, and directory services for agents operating within a logical environment. However, many of these systems assume a trusted Directory Facilitator and do not address adversarial or economic considerations.
+                </p>
+                <p class="text-[14px] leading-[1.7] text-zinc-300">
+                  The Ainur Protocol draws on MAS concepts in its AACL design and in the structuring of interaction protocols, but replaces centralised facilitators with decentralised discovery and relies on economic and cryptographic mechanisms, rather than trust alone, to govern behaviour.
+                </p>
+              </div>
+
+              <div>
+                <h3 class="text-[18px] font-semibold tracking-tight text-zinc-100 mb-2">4.3 Mechanism Design and Market Protocols</h3>
+                <p class="text-[14px] leading-[1.7] text-zinc-300 mb-3">
+                  Task allocation among strategic agents is a central problem in mechanism design. Vickrey-Clarke-Groves auctions [Vickrey 1961; Clarke 1971; Groves 1973] provide incentive-compatible mechanisms under certain assumptions, but their application in dynamic, high-volume environments with computational and communication constraints requires careful engineering.
+                </p>
+                <p class="text-[14px] leading-[1.7] text-zinc-300">
+                  The Ainur economic layer employs VCG-style mechanisms where feasible and defines approximations or alternative mechanisms where constraints impose trade-offs between theoretical guarantees and practical performance. These mechanisms are tightly coupled to the identity and reputation layers to mitigate collusion and sybil amplification.
+                </p>
+              </div>
+
+              <div>
+                <h3 class="text-[18px] font-semibold tracking-tight text-zinc-100 mb-2">4.4 Verifiable Computation</h3>
+                <p class="text-[14px] leading-[1.7] text-zinc-300 mb-3">
+                  The Warden layer combines trusted hardware attestation and cryptographic proof systems. Trusted execution environments have been used in various distributed systems to provide confidential and verifiable execution, but they introduce assumptions about hardware vendors and the security of microarchitectural implementations. Zero-knowledge proof systems, such as SNARKs and STARKs, provide strong cryptographic guarantees at the cost of computational overhead.
+                </p>
+                <p class="text-[14px] leading-[1.7] text-zinc-300">
+                  The protocol does not privilege a single verification mechanism; instead, it defines verification levels and allows application-level policies to select the mix of mechanisms appropriate to each use case.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- 5. Performance Characteristics -->
+          <section id="performance" class="mb-12">
+            <h2 class="text-[28px] font-semibold tracking-tight text-zinc-50 mb-4">5. Performance Characteristics</h2>
+            
+            <p class="text-[14px] leading-[1.7] text-zinc-300 mb-6">
+              The protocol targets the following performance envelope under normal operating conditions with up to \( f < n/3 \) Byzantine validators:
+            </p>
+
+            <!-- Performance metrics table -->
+            <div class="my-6 overflow-hidden rounded-xl border border-white/10">
+              <div class="border-b border-white/5 bg-zinc-950/90 px-4 py-2.5">
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Target Performance Metrics</div>
+              </div>
+              <table class="w-full text-left text-[13px]">
+                <thead class="border-b border-white/5 bg-white/5">
+                  <tr>
+                    <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Metric</th>
+                    <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400 text-right">Target</th>
+                    <th class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Notes</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 text-zinc-300">Transaction throughput</td>
+                    <td class="px-4 py-3 text-right font-mono text-[12px] text-indigo-300">1,000 TPS</td>
+                    <td class="px-4 py-3 text-zinc-400 text-[12px]">Base layer; 10,000+ with L1.5 sharding</td>
+                  </tr>
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 text-zinc-300">Block time</td>
+                    <td class="px-4 py-3 text-right font-mono text-[12px] text-indigo-300">6 seconds</td>
+                    <td class="px-4 py-3 text-zinc-400 text-[12px]">BABE slot duration</td>
+                  </tr>
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 text-zinc-300">Finality</td>
+                    <td class="px-4 py-3 text-right font-mono text-[12px] text-indigo-300">12 seconds</td>
+                    <td class="px-4 py-3 text-zinc-400 text-[12px]">2 blocks under normal conditions (GRANDPA)</td>
+                  </tr>
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 text-zinc-300">P2P message latency (p95)</td>
+                    <td class="px-4 py-3 text-right font-mono text-[12px] text-indigo-300">&lt;500ms</td>
+                    <td class="px-4 py-3 text-zinc-400 text-[12px]">Global routing with Q-learning</td>
+                  </tr>
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 text-zinc-300">Agent task allocation</td>
+                    <td class="px-4 py-3 text-right font-mono text-[12px] text-indigo-300">&lt;10 seconds</td>
+                    <td class="px-4 py-3 text-zinc-400 text-[12px]">VCG auction settlement time</td>
+                  </tr>
+                  <tr class="hover:bg-white/5 transition">
+                    <td class="px-4 py-3 text-zinc-300">Verification overhead</td>
+                    <td class="px-4 py-3 text-right font-mono text-[12px] text-indigo-300">1.2×-100×</td>
+                    <td class="px-4 py-3 text-zinc-400 text-[12px]">Depends on verification level (TEE vs ZK)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- 6. Document Organization -->
+          <section id="document-org" class="mb-12">
+            <h2 class="text-[28px] font-semibold tracking-tight text-zinc-50 mb-4">6. Document Organization</h2>
+            
+            <p class="text-[14px] leading-[1.7] text-zinc-300 mb-4">
+              The overall documentation set is organised to support multiple classes of reader:
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+              <a href="introduction/overview.html" class="group rounded-lg border border-white/10 bg-zinc-900/40 p-4 hover:border-indigo-500/40 hover:bg-zinc-900/60 transition">
+                <div class="mb-2 text-[14px] font-semibold text-zinc-100 group-hover:text-indigo-200 transition">System Overview</div>
+                <p class="text-[13px] text-zinc-400">Conceptual map for readers requiring accurate high-level understanding</p>
+              </a>
+
+              <a href="architecture/technical-specifications.html" class="group rounded-lg border border-white/10 bg-zinc-900/40 p-4 hover:border-indigo-500/40 hover:bg-zinc-900/60 transition">
+                <div class="mb-2 text-[14px] font-semibold text-zinc-100 group-hover:text-indigo-200 transition">Technical Specifications</div>
+                <p class="text-[13px] text-zinc-400">Formal treatment of algorithms, interfaces, and invariants</p>
+              </a>
+
+              <a href="introduction/problem-statement.html" class="group rounded-lg border border-white/10 bg-zinc-900/40 p-4 hover:border-indigo-500/40 hover:bg-zinc-900/60 transition">
+                <div class="mb-2 text-[14px] font-semibold text-zinc-100 group-hover:text-indigo-200 transition">Problem Statement</div>
+                <p class="text-[13px] text-zinc-400">Formalises coordination problem, adversarial assumptions, and requirements</p>
+              </a>
+
+              <a href="introduction/solution-approach.html" class="group rounded-lg border border-white/10 bg-zinc-900/40 p-4 hover:border-indigo-500/40 hover:bg-zinc-900/60 transition">
+                <div class="mb-2 text-[14px] font-semibold text-zinc-100 group-hover:text-indigo-200 transition">Solution Approach</div>
+                <p class="text-[13px] text-zinc-400">Maps design decisions and mechanisms to stated requirements</p>
+              </a>
+            </div>
+          </section>
+
+          <!-- References -->
+          <section id="references" class="mb-12">
+            <h2 class="text-[28px] font-semibold tracking-tight text-zinc-50 mb-4">References</h2>
+            
+            <div class="rounded-xl border border-white/10 bg-zinc-950/80 p-6">
+              <div class="space-y-3 text-[13px] leading-relaxed text-zinc-400">
+                <div class="flex gap-3">
+                  <span class="flex-shrink-0 text-zinc-500">[1]</span>
+                  <p>M. Castro and B. Liskov, "Practical Byzantine Fault Tolerance," <i>Proceedings of the Third Symposium on Operating Systems Design and Implementation (OSDI)</i>, 1999.</p>
+                </div>
+                <div class="flex gap-3">
+                  <span class="flex-shrink-0 text-zinc-500">[2]</span>
+                  <p>W. Vickrey, "Counterspeculation, Auctions, and Competitive Sealed Tenders," <i>Journal of Finance</i>, vol. 16, no. 1, pp. 8–37, 1961.</p>
+                </div>
+                <div class="flex gap-3">
+                  <span class="flex-shrink-0 text-zinc-500">[3]</span>
+                  <p>E. H. Clarke, "Multipart Pricing of Public Goods," <i>Public Choice</i>, vol. 11, pp. 17–33, 1971.</p>
+                </div>
+                <div class="flex gap-3">
+                  <span class="flex-shrink-0 text-zinc-500">[4]</span>
+                  <p>T. Groves, "Incentives in Teams," <i>Econometrica</i>, vol. 41, no. 4, pp. 617–631, 1973.</p>
+                </div>
+                <div class="flex gap-3">
+                  <span class="flex-shrink-0 text-zinc-500">[5]</span>
+                  <p>G. Wood, "Polkadot: Vision for a Heterogeneous Multi-Chain Framework," <i>White Paper</i>, 2016.</p>
+                </div>
+                <div class="flex gap-3">
+                  <span class="flex-shrink-0 text-zinc-500">[6]</span>
+                  <p>J. Groth, "On the Size of Pairing-Based Non-Interactive Arguments," <i>EUROCRYPT 2016</i>, pp. 305–326.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Footer navigation -->
+          <nav class="mt-16 flex items-center justify-between border-t border-white/5 pt-6">
+            <div></div>
+            <a href="introduction/motivation.html" class="flex items-center gap-2 rounded-lg border border-white/10 bg-zinc-900/60 px-4 py-2.5 text-[13px] text-zinc-300 transition hover:border-indigo-500/40 hover:bg-zinc-900 hover:text-zinc-100">
+              <span>Next: Motivation</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </a>
+          </nav>
+
+          <!-- Document meta footer -->
+          <footer class="mt-12 border-t border-white/5 pt-6 pb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div class="text-[11px] text-zinc-500">
+                <span>Ainur Labs</span>
+                <span class="mx-2">•</span>
+                <span>November 2025</span>
+                <span class="mx-2">•</span>
+                <span>Document v1.0</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <a href="https://github.com/aidenlippert/ainur/edit/main/docs/introduction/overview.md" class="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-zinc-900/60 px-2.5 py-1.5 text-[11px] text-zinc-400 transition hover:border-white/20 hover:text-zinc-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                  Edit this page
+                </a>
+              </div>
+            </div>
+          </footer>
+        </div>
+      </main>
+
+      <!-- Right TOC -->
+      <aside class="hidden xl:sticky xl:top-14 xl:block xl:h-[calc(100vh-3.5rem)] xl:w-64 xl:flex-none xl:px-4 xl:py-6 xl:overflow-y-auto">
+        <div class="rounded-lg border border-white/10 bg-zinc-950/60 p-4">
+          <div class="mb-3 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">On This Page</div>
+          <nav class="space-y-2 text-[12px]">
+            <a href="#abstract" class="block text-zinc-400 hover:text-zinc-100 transition">Abstract</a>
+            <a href="#problem-domain" class="block text-zinc-400 hover:text-zinc-100 transition">1. Problem Domain</a>
+            <div class="pl-3 space-y-1.5 border-l border-white/5 mt-1.5">
+              <a href="#" class="block text-zinc-500 hover:text-zinc-300 transition">1.1 Autonomous Agents</a>
+              <a href="#" class="block text-zinc-500 hover:text-zinc-300 transition">1.2 Adversarial Coordination</a>
+              <a href="#" class="block text-zinc-500 hover:text-zinc-300 transition">1.3 Existing Limitations</a>
+            </div>
+            <a href="#system-objectives" class="block text-zinc-400 hover:text-zinc-100 transition">2. System Objectives</a>
+            <a href="#architecture" class="block text-zinc-400 hover:text-zinc-100 transition">3. Architecture</a>
+            <a href="#prior-work" class="block text-zinc-400 hover:text-zinc-100 transition">4. Prior Work</a>
+            <a href="#performance" class="block text-zinc-400 hover:text-zinc-100 transition">5. Performance</a>
+            <a href="#references" class="block text-zinc-400 hover:text-zinc-100 transition">References</a>
+          </nav>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // Reading progress indicator
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('reading-progress').style.width = scrolled + '%';
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
