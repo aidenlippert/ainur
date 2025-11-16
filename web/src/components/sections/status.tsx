@@ -1,4 +1,5 @@
 import { Calendar, Code2, FileText, Users } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const milestones = [
   {
@@ -45,25 +46,33 @@ export function StatusSection() {
           {milestones.map((m) => {
             const Icon = m.icon;
             return (
-              <div
+              <Card
                 key={m.label}
-                className="flex gap-4 rounded-lg border border-slate-800 bg-slate-950/70 p-6"
+                className="group transition-all hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/10"
               >
-                <div className="flex-shrink-0">
-                  <div className="rounded-lg bg-indigo-500/10 p-3">
-                    <Icon className="h-5 w-5 text-indigo-300" />
+                <CardHeader>
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0">
+                      <div className="rounded-lg bg-indigo-500/10 p-3">
+                        <Icon className="h-5 w-5 text-indigo-300" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <CardTitle className="text-base font-semibold text-slate-50">
+                        {m.label}
+                      </CardTitle>
+                      <div className="text-xs font-mono text-indigo-300">
+                        {m.status}
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-1">
-                  <div className="text-sm font-semibold text-slate-50">
-                    {m.label}
-                  </div>
-                  <div className="text-xs font-mono text-indigo-300">
-                    {m.status}
-                  </div>
-                  <div className="text-sm text-slate-300">{m.description}</div>
-                </div>
-              </div>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-sm text-slate-300">
+                    {m.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
             );
           })}
         </div>

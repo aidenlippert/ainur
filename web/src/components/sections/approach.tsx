@@ -1,3 +1,5 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
 const approaches = [
   {
     title: "Shared state",
@@ -53,19 +55,23 @@ export function ApproachSection() {
           </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {approaches.map((item) => (
-            <div
+            <Card
               key={item.title}
-              className="rounded-lg border border-slate-800 bg-slate-950/60 p-6 shadow-sm"
+              className="group relative overflow-hidden transition-all hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/10"
             >
-              <h3 className="mb-2 text-lg font-semibold text-slate-50">
-                {item.title}
-              </h3>
-              <p className="mb-3 text-sm text-slate-300">
-                {item.description}
-              </p>
-            </div>
+              <CardHeader>
+                <CardTitle className="text-base font-semibold text-slate-50">
+                  {item.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-sm leading-relaxed text-slate-300">
+                  {item.description}
+                </CardDescription>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>
