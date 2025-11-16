@@ -1,31 +1,48 @@
 @import "tailwindcss";
 
 :root {
-  --primary: #f90606;
-  --background-light: #f8f5f5;
-  --background-dark: #111111;
-  --surface-dark: #181111;
-  --border-dark: #3a2727;
-  --text-muted-dark: #bb9b9b;
-}
-
-@theme inline {
-  --color-primary: var(--primary);
-  --font-display: var(--font-display);
-}
-
-* {
-  border-color: var(--border-dark);
+  --color-background: #0a1929;
+  --color-surface: #11253f;
+  --color-card: #0f2238;
+  --color-border: #1f3b58;
+  --color-primary: #00e5ff;
+  --color-primary-dark: #00b3cc;
+  --color-muted: #7aa0c4;
+  --color-danger: #f90606;
 }
 
 body {
-  background: var(--background-dark);
-  color: #e5e7eb;
-  font-family: var(--font-display), sans-serif;
+  background: radial-gradient(
+      circle at top right,
+      rgba(0, 229, 255, 0.15),
+      transparent 45%
+    ),
+    radial-gradient(circle at 20% 20%, rgba(0, 179, 204, 0.1), transparent 35%),
+    var(--color-background);
+  min-height: 100vh;
+  font-family: var(--font-inter), sans-serif;
+  color: #e2e8f0;
 }
 
-/* Material Symbols configuration */
-.material-symbols-outlined {
-  font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
-  font-size: 24px;
+.font-mono {
+  font-family: var(--font-mono), "JetBrains Mono", monospace;
+}
+
+.glass-panel {
+  background: rgba(15, 34, 56, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  backdrop-filter: blur(20px);
+}
+
+.section-heading {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #f8fafc;
+}
+
+.subheading {
+  font-size: 1rem;
+  color: var(--color-muted);
 }

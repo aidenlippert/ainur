@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const spaceGrotesk = Space_Grotesk({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  variable: "--font-display",
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const jetBrains = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -21,14 +27,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
-        />
-      </head>
       <body
-        className={`${spaceGrotesk.variable} font-display bg-[#111111] text-gray-200 antialiased`}
+        className={`${inter.variable} ${jetBrains.variable} bg-[#0a1929] text-slate-100 antialiased`}
       >
         {children}
       </body>
