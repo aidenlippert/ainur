@@ -5,7 +5,7 @@ import { LayerStackSection } from "@/components/sections/layer-stack";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100">
       <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
@@ -50,7 +50,7 @@ export default function Home() {
               </span>
             </span>
             <span className="rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-[11px]">
-              v0.3-alpha
+              Foundation phase
             </span>
           </div>
         </div>

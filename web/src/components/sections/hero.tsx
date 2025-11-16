@@ -1,10 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Github, BookOpen, Rocket } from "lucide-react";
+import { ArrowRight, Github, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { BorderBeam } from "@/components/magicui/border-beam";
-import { AnimatedGridPattern } from "@/components/magicui/animated-grid-pattern";
 import { TypewriterEffect } from "@/components/aceternity/typewriter-effect";
 
 const words = [
@@ -18,10 +16,7 @@ const words = [
 export function HeroSection() {
   return (
     <section className="relative flex min-h-[80vh] items-center justify-center overflow-hidden py-16">
-      <AnimatedGridPattern className="opacity-30" />
-      <div className="fixed inset-0 -z-10 gradient-mesh opacity-60" />
-
-      <div className="container relative z-10 mx-auto px-4 md:px-8">
+      <div className="container mx-auto px-4 md:px-8">
         <div className="flex flex-col items-center space-y-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -29,10 +24,11 @@ export function HeroSection() {
             transition={{ duration: 0.5 }}
           >
             <div className="inline-flex items-center rounded-full border border-slate-700/60 bg-slate-900/80 px-4 py-1.5 text-xs text-slate-300 glass-morphism">
-              <Rocket className="mr-2 h-3.5 w-3.5 text-indigo-400" />
-              <span className="font-mono">v0.3-alpha</span>
+              <span className="font-mono">Core protocol</span>
               <span className="mx-2 text-slate-500">·</span>
-              <span className="text-slate-400">Foundation and early implementation</span>
+              <span className="text-slate-400">
+                Autonomous agent coordination infrastructure
+              </span>
             </div>
           </motion.div>
 
@@ -69,15 +65,12 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="flex flex-col gap-4 sm:flex-row"
           >
-            <div className="relative">
-              <BorderBeam className="rounded-lg" />
-              <Button size="lg" className="relative px-6 py-2.5">
-                <span className="relative z-10 flex items-center">
-                  Request early access
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </span>
-              </Button>
-            </div>
+            <Button size="lg" className="px-6 py-2.5">
+              <span className="flex items-center">
+                Request early access
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </span>
+            </Button>
 
             <Button
               size="lg"
