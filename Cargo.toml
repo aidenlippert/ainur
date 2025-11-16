@@ -1,15 +1,17 @@
 [workspace]
 resolver = "2"
 members = [
-    "chain/node",
-    "chain/pallets/*",
-    "chain/runtime",
-    "crates/*",
-    "orchestrator/api",
-    "orchestrator/services/*",
-    "runtimes/wasm-rust",
-    "sdk/rust",
-    "tools/*",
+    "crates/ainur-core",
+    # Uncomment as crates are created:
+    # "chain/node",
+    # "chain/pallets/*",
+    # "chain/runtime",
+    # "crates/*",
+    # "orchestrator/api",
+    # "orchestrator/services/*",
+    # "runtimes/wasm-rust",
+    # "sdk/rust",
+    # "tools/*",
 ]
 
 [workspace.package]
