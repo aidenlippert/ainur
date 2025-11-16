@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "docs.ainur.network"
+        }
+      ],
+      "destination": "/whitepaper"
+    }
+  ]
+}
+
+
