@@ -70,29 +70,21 @@ export function HeroSection() {
               </span>
             </Button>
 
-            <Button
-              size="lg"
-              variant="outline"
-              className="px-6 py-2.5 text-sm"
-              asChild
+            <a
+              href="https://docs.ainur.network/introduction/overview/"
+              className="inline-flex items-center justify-center rounded-md border border-slate-700 bg-slate-900 px-6 py-2.5 text-sm font-medium text-slate-100 hover:border-indigo-400 hover:bg-slate-800"
             >
-              <a href="https://docs.ainur.network/introduction/overview/">
-                <BookOpen className="mr-2 h-4 w-4" />
-                Read documentation
-              </a>
-            </Button>
+              <BookOpen className="mr-2 h-4 w-4" />
+              Read documentation
+            </a>
 
-            <Button
-              size="lg"
-              variant="ghost"
-              className="px-6 py-2.5 text-sm"
-              asChild
+            <a
+              href="https://github.com/aidenlippert/ainur"
+              className="inline-flex items-center justify-center rounded-md border border-transparent px-6 py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-900/60 hover:text-slate-100"
             >
-              <a href="https://github.com/aidenlippert/ainur">
-                <Github className="mr-2 h-4 w-4" />
-                View on GitHub
-              </a>
-            </Button>
+              <Github className="mr-2 h-4 w-4" />
+              View on GitHub
+            </a>
           </motion.div>
 
           {/* No additional technical detail on the landing hero;
