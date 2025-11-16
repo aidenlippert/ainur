@@ -1,0 +1,44 @@
+[package]
+name = "ainur-core"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+description = "Core types and traits for the Ainur Protocol"
+
+[dependencies]
+# Serialization
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+parity-scale-codec = { workspace = true, features = ["derive"] }
+scale-info = { workspace = true, features = ["derive"] }
+
+# Cryptography
+sha3 = { workspace = true }
+ed25519-dalek = { workspace = true }
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Math
+num-traits = "0.2"
+num-derive = "0.4"
+
+[dev-dependencies]
+proptest = { workspace = true }
+criterion = { workspace = true }
+
+[features]
+default = ["std"]
+std = [
+    "serde/std",
+    "parity-scale-codec/std",
+    "scale-info/std",
+]
+runtime-benchmarks = []

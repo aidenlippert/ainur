@@ -1,0 +1,39 @@
+# Rust
+target/
+**/*.rs.bk
+*.pdb
+Cargo.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+*.key
+*.pem
+
+# Build artifacts
+dist/
+build/
+*.wasm
+*.wat
+
+# Logs
+*.log
+logs/
+
+# Chain data
+chain-data/
+.local/
+
+# Dependencies
+node_modules/

@@ -1,0 +1,29 @@
+[build]
+  base = "docs/"
+  publish = "site/"
+  command = "pip install mkdocs-material mkdocs-awesome-pages-plugin mkdocs-macros-plugin mkdocs-git-revision-date-localized-plugin mkdocs-minify-plugin && mkdocs build"
+
+[build.environment]
+  PYTHON_VERSION = "3.11"
+
+[[redirects]]
+  from = "/docs/*"
+  to = "/:splat"
+  status = 301
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[context.production]
+  environment = { NODE_VERSION = "18" }
+
+[context.deploy-preview]
+  command = "mkdocs build --strict"
+
+[context.branch-deploy]
+  command = "mkdocs build"

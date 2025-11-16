@@ -1,0 +1,74 @@
+name: Feature Request
+description: Propose a new feature for Ainur Protocol
+title: "[FEATURE] "
+labels: ["enhancement", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Feature Request
+        Thank you for proposing a new feature!
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which component does this feature relate to?
+      options:
+        - L1 Blockchain (Temporal)
+        - L3 P2P Network
+        - L4 AACL Protocol
+        - L5 Execution Runtime
+        - L6 Economic Layer
+        - L5.5 Verification (Warden)
+        - L4.5 MARL (Nexus)
+        - SDK
+        - Documentation
+        - Infrastructure
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve?
+      placeholder: Describe the problem or limitation...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How would you like this feature to work?
+      placeholder: Describe your proposed solution...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What alternative solutions have you considered?
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - P0 - Critical
+        - P1 - High
+        - P2 - Medium
+        - P3 - Low
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: breaking
+    attributes:
+      label: Breaking Change?
+      options:
+        - label: This feature would introduce breaking changes
