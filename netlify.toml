@@ -13,7 +13,8 @@
   from = "/*"
   to = "/docs/:splat"
   status = 200
-  conditions = {Host = ["docs.ainur.network"]}
+  force = true
+  conditions = { Host = ["docs.ainur.network"] }
 
 # Security headers
 [[headers]]
