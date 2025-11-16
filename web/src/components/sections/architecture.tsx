@@ -1,5 +1,3 @@
-import { Button } from "@/components/ui/button";
-
 export function ArchitectureSection() {
   return (
     <section className="border-t border-slate-800 bg-slate-950/70 py-20 sm:py-24">
@@ -56,16 +54,12 @@ export function ArchitectureSection() {
         </div>
 
         <div className="mt-10 flex justify-center">
-          <Button
-            variant="outline"
-            size="lg"
-            asChild
-            className="px-6 text-sm sm:text-base"
+          <a
+            href="https://docs.ainur.network/architecture/technical-specifications/"
+            className="inline-flex items-center rounded-md border border-slate-700 bg-slate-950 px-5 py-2 text-sm font-medium text-slate-100 hover:border-indigo-400 hover:bg-slate-900"
           >
-            <a href="https://docs.ainur.network/architecture/technical-specifications/">
-              View complete specification
-            </a>
-          </Button>
+            View complete specification
+          </a>
         </div>
       </div>
     </section>
