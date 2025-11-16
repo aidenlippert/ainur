@@ -48,6 +48,23 @@ export default function Home() {
               >
                 Read the whitepaper
               </a>
+              <div className="mt-2 flex items-center gap-4 text-xs text-slate-500">
+                <a
+                  href="https://github.com/ainur-protocol/ainur"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-slate-200"
+                >
+                  GitHub
+                </a>
+                <button
+                  type="button"
+                  className="cursor-default text-slate-600"
+                  aria-label="X (coming soon)"
+                >
+                  X
+                </button>
+              </div>
               <p className="text-[0.7rem] text-slate-500">
                 No token sale. No investment product. Protocol infrastructure under
                 active development.
