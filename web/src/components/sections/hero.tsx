@@ -3,15 +3,10 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Github, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TypewriterEffect } from "@/components/aceternity/typewriter-effect";
+import { AuroraText } from "@/components/magicui/aurora-text";
+import { AnimatedShinyText } from "@/components/magicui/animated-shiny-text";
 
-const words = [
-  { text: "Decentralised" },
-  { text: "infrastructure" },
-  { text: "for" },
-  { text: "AI", className: "text-primary" },
-  { text: "agents." },
-];
+// Aurora text for gradient heading effect
 
 export function HeroSection() {
   return (
@@ -36,14 +31,19 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="space-y-4"
+            className="space-y-6"
           >
-            <h1 className="text-balance text-4xl font-bold tracking-tight text-slate-50 sm:text-6xl md:text-7xl">
-              Ainur Protocol
+            <h1 className="text-balance text-5xl font-bold tracking-tight sm:text-7xl md:text-8xl">
+              <AuroraText
+                colors={["#6366f1", "#a855f7", "#06b6d4", "#38bdf8"]}
+                speed={1.2}
+              >
+                Ainur Protocol
+              </AuroraText>
             </h1>
-            <div className="text-xl text-slate-300 md:text-2xl">
-              <TypewriterEffect words={words} />
-            </div>
+            <AnimatedShinyText className="text-xl text-slate-200 md:text-2xl">
+              Decentralised infrastructure for AI agents
+            </AnimatedShinyText>
           </motion.div>
 
           <motion.p
