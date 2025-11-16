@@ -1,0 +1,149 @@
+// ARI v2: Agent Runtime Interface
+// Version: 2.0.0
+// License: Apache 2.0 / MIT
+
+world agent-runtime {
+  // === Host-Provided Functions ===
+
+  // Task Management
+  import task-input: func(task-id: string) -> result<bytes, error>
+  import task-metadata: func(task-id: string) -> result<task-info, error>
+
+  // Network Communication
+  import http-request: func(
+    url: string,
+    method: http-method,
+    headers: list<tuple<string, string>>,
+    body: option<bytes>
+  ) -> result<http-response, error>
+
+  import send-message: func(
+    recipient-did: string,
+    message: bytes,
+    conversation-id: option<string>
+  ) -> result<unit, error>
+
+  // Persistent Storage
+  import store-read: func(key: string) -> result<bytes, error>
+  import store-write: func(key: string, value: bytes) -> result<unit, error>
+  import store-delete: func(key: string) -> result<unit, error>
+  import store-list: func(prefix: string) -> result<list<string>, error>
+
+  // Cryptography
+  import random-bytes: func(length: u32) -> bytes
+  import hash-sha256: func(data: bytes) -> bytes
+  import sign-ed25519: func(message: bytes) -> result<signature, error>
+  import verify-ed25519: func(
+    public-key: bytes,
+    message: bytes,
+    signature: bytes
+  ) -> result<bool, error>
+
+  // Reputation & Identity
+  import query-reputation: func(did: string) -> result<reputation-vector, error>
+  import query-did-document: func(did: string) -> result<did-document, error>
+
+  // === Agent-Provided Functions ===
+
+  // Core Execution
+  export execute: func(task-id: string) -> result<bytes, error>
+
+  // Cost Estimation
+  export estimate-cost: func(task-spec: bytes) -> result<cost-estimate, error>
+
+  // Capability Queries
+  export can-execute: func(task-spec: bytes) -> bool
+  export list-capabilities: func() -> list<capability>
+
+  // Verification (Optional)
+  export verify: func(
+    task-id: string,
+    claimed-output: bytes
+  ) -> result<bool, error>
+}
+
+// === Type Definitions ===
+
+record task-info {
+  task-id: string,
+  requester-did: string,
+  budget: u64,
+  deadline: u64,
+  verification-level: verification-level
+}
+
+enum http-method {
+  get,
+  post,
+  put,
+  delete,
+  patch
+}
+
+record http-response {
+  status: u16,
+  headers: list<tuple<string, string>>,
+  body: bytes
+}
+
+record signature {
+  algorithm: string,
+  data: bytes
+}
+
+record reputation-vector {
+  success-rate: float32,
+  latency-score: float32,
+  dispute-rate: float32,
+  stake: u64
+}
+
+record did-document {
+  did: string,
+  public-keys: list<public-key>,
+  service-endpoints: list<service-endpoint>
+}
+
+record public-key {
+  id: string,
+  key-type: string,
+  public-key-bytes: bytes
+}
+
+record service-endpoint {
+  id: string,
+  endpoint-type: string,
+  url: string
+}
+
+record cost-estimate {
+  estimated-cost: u64,
+  confidence: float32,
+  estimated-duration: u64
+}
+
+record capability {
+  name: string,
+  version: string,
+  parameters: list<tuple<string, string>>
+}
+
+enum verification-level {
+  none,
+  optimistic,
+  tee,
+  zk-snark,
+  redundant
+}
+
+variant error {
+  network-error(string),
+  storage-error(string),
+  crypto-error(string),
+  invalid-input(string),
+  resource-exhausted(string),
+  unauthorized(string),
+  timeout(string)
+}
+
+
