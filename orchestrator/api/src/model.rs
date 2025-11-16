@@ -1,4 +1,4 @@
-use ainur_core::{AgentId, Budget, Requirements, Task, TaskSpec, VerificationLevel};
+use ainur_core::{AgentId, Bid, Budget, Requirements, Task, TaskResult, TaskSpec, VerificationLevel};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -60,6 +60,26 @@ pub struct StoredTask {
     pub created_at: u64,
 }
 
+/// Internal representation of a bid stored by the orchestrator.
+#[derive(Debug, Clone)]
+pub struct StoredBid {
+    pub id: String,
+    pub task_id: String,
+    pub agent_id: String,
+    pub bid: Bid,
+    pub created_at: u64,
+}
+
+/// Internal representation of a task result stored by the orchestrator.
+#[derive(Debug, Clone)]
+pub struct StoredResult {
+    pub id: String,
+    pub task_id: String,
+    pub agent_id: String,
+    pub result: TaskResult,
+    pub created_at: u64,
+}
+
 /// Public view of a task returned by the API.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskView {
@@ -71,6 +91,27 @@ pub struct TaskView {
     pub max_budget: u128,
 }
 
+/// Public view of a bid.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BidView {
+    pub id: String,
+    pub task_id: String,
+    pub agent_id: String,
+    pub value: u128,
+    pub quality_score: u32,
+    pub completion_time: u64,
+}
+
+/// Public view of a task result.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ResultView {
+    pub id: String,
+    pub task_id: String,
+    pub agent_id: String,
+    pub output_base64: String,
+    pub completed_at: u64,
+}
+
 impl TaskView {
     pub fn from_stored(stored: &StoredTask) -> Self {
         Self {
@@ -80,6 +121,31 @@ impl TaskView {
             status: stored.status,
             deadline: stored.task.deadline,
             max_budget: stored.task.budget.max_cost,
+        }
+    }
+}
+
+impl BidView {
+    pub fn from_stored(stored: &StoredBid) -> Self {
+        Self {
+            id: stored.id.clone(),
+            task_id: stored.task_id.clone(),
+            agent_id: stored.agent_id.clone(),
+            value: stored.bid.value,
+            quality_score: stored.bid.quality_score,
+            completion_time: stored.bid.completion_time,
+        }
+    }
+}
+
+impl ResultView {
+    pub fn from_stored(stored: &StoredResult) -> Self {
+        Self {
+            id: stored.id.clone(),
+            task_id: stored.task_id.clone(),
+            agent_id: stored.agent_id.clone(),
+            output_base64: base64::encode(&stored.result.output),
+            completed_at: stored.result.completed_at,
         }
     }
 }
@@ -108,6 +174,80 @@ impl StoredTask {
             client_task_id: submission.client_task_id,
             task,
             status: TaskStatus::Pending,
+            created_at,
+        })
+    }
+}
+
+/// Payload for submitting a bid for a task.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BidSubmissionRequest {
+    pub task_id: String,
+    pub agent_id: String,
+    pub value: u128,
+    pub quality_score: u32,
+    pub completion_time: u64,
+}
+
+impl StoredBid {
+    pub fn from_submission(
+        submission: BidSubmissionRequest,
+        task: &StoredTask,
+    ) -> Result<Self, ApiError> {
+        if submission.agent_id.trim().is_empty() {
+            return Err(ApiError::BadRequest(
+                "agent_id must not be empty".to_string(),
+            ));
+        }
+
+        let bid = build_core_bid(&submission, &task.task);
+
+        let id = Uuid::new_v4().to_string();
+        let created_at = current_unix_timestamp();
+
+        Ok(Self {
+            id,
+            task_id: task.id.clone(),
+            agent_id: submission.agent_id,
+            bid,
+            created_at,
+        })
+    }
+}
+
+/// Payload for submitting a task result.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ResultSubmissionRequest {
+    pub task_id: String,
+    pub agent_id: String,
+    pub output_base64: String,
+}
+
+impl StoredResult {
+    pub fn from_submission(
+        submission: ResultSubmissionRequest,
+        task: &StoredTask,
+    ) -> Result<Self, ApiError> {
+        if submission.agent_id.trim().is_empty() {
+            return Err(ApiError::BadRequest(
+                "agent_id must not be empty".to_string(),
+            ));
+        }
+
+        let output = base64::decode(&submission.output_base64).map_err(|_| {
+            ApiError::BadRequest("output_base64 must be valid base64".to_string())
+        })?;
+
+        let result = build_core_result(&submission, &task.task, output);
+
+        let id = Uuid::new_v4().to_string();
+        let created_at = result.completed_at;
+
+        Ok(Self {
+            id,
+            task_id: task.id.clone(),
+            agent_id: submission.agent_id,
+            result,
             created_at,
         })
     }
@@ -154,6 +294,48 @@ fn build_core_task(submission: &TaskSubmissionRequest, input: Vec<u8>) -> Task {
         budget,
         deadline: submission.deadline,
         verification_level: VerificationLevel::BestEffort,
+    }
+}
+
+fn build_core_bid(submission: &BidSubmissionRequest, task: &Task) -> Bid {
+    let executor_hash = blake3::hash(submission.agent_id.as_bytes());
+    let mut executor_bytes = [0u8; 32];
+    executor_bytes.copy_from_slice(&executor_hash.as_bytes()[..32]);
+    let agent_id = AgentId::new(executor_bytes);
+
+    Bid {
+        agent_id,
+        task_id: task.id,
+        value: submission.value,
+        quality_score: submission.quality_score,
+        completion_time: submission.completion_time,
+        guarantees: Vec::new(),
+    }
+}
+
+fn build_core_result(
+    submission: &ResultSubmissionRequest,
+    task: &Task,
+    output: Vec<u8>,
+) -> TaskResult {
+    let executor_hash = blake3::hash(submission.agent_id.as_bytes());
+    let mut executor_bytes = [0u8; 32];
+    executor_bytes.copy_from_slice(&executor_hash.as_bytes()[..32]);
+    let executor = AgentId::new(executor_bytes);
+
+    TaskResult {
+        task_id: task.id,
+        executor,
+        output,
+        proof: None,
+        resources_used: ainur_core::ResourceUsage {
+            cpu_time_ms: 0,
+            memory_bytes: 0,
+            storage_bytes: 0,
+            bandwidth_bytes: 0,
+            gpu_time_ms: None,
+        },
+        completed_at: current_unix_timestamp(),
     }
 }
 
