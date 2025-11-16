@@ -37,3 +37,4 @@ chain-data/
 
 # Dependencies
 node_modules/
+.venv/
