@@ -6,6 +6,7 @@ repo_name: aidenlippert/ainur
 
 theme:
   name: material
+  custom_dir: docs/overrides
   palette:
     scheme: slate
     primary: indigo

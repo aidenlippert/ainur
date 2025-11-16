@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block htmltitle %}
+<title>{% if page.title %}{{ page.title }} - {% endif %}Ainur Protocol Docs</title>
+{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="preconnect" href="https://rsms.me/">
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ 'stylesheets/custom.css' | url }}">
+{% endblock %}
+
+{% block extrahead %}
+<style>
+  :root {
+    --md-text-font: "Inter";
+    --md-code-font: "JetBrains Mono";
+  }
+  body {
+    background: #09090b;
+  }
+</style>
+{% endblock %}
+
+{% block header %}
+<!-- Reading progress bar -->
+<div class="fixed top-0 left-0 right-0 z-50 h-0.5 bg-zinc-900">
+  <div id="reading-progress" class="h-0.5 bg-indigo-500 transition-all duration-200" style="width: 0%"></div>
+</div>
+
+<!-- Custom header -->
+<header class="md-header sticky top-0 z-40 border-b border-white/5 bg-[#09090b]/80" data-md-component="header" style="backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+  <nav class="md-header__inner mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex h-14 items-center justify-between gap-4">
+      <!-- Logo -->
+      <div class="flex items-center gap-6">
+        <a href="{{ config.site_url | url }}" class="inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium tracking-tight text-zinc-100 hover:text-white transition">
+          <div class="flex h-6 w-6 items-center justify-center rounded-md border border-white/10 bg-gradient-to-br from-indigo-500/20 to-purple-500/20">
+            <span class="text-[11px] font-semibold">AN</span>
+          </div>
+          <span class="hidden text-[13px] font-semibold tracking-tight sm:inline">Ainur Docs</span>
+        </a>
+        <nav class="hidden items-center gap-3 text-[13px] font-medium text-zinc-400 lg:flex">
+          <a href="{{ config.site_url | url }}" class="rounded-md px-2 py-1 hover:text-zinc-100 hover:bg-white/5 transition">Docs</a>
+          <a href="{{ 'whitepaper' | url }}" class="rounded-md px-2 py-1 hover:text-zinc-100 hover:bg-white/5 transition">Whitepaper</a>
+          <a href="https://github.com/aidenlippert/ainur" class="rounded-md px-2 py-1 hover:text-zinc-100 hover:bg-white/5 transition">GitHub</a>
+        </nav>
+      </div>
+      
+      <!-- Right side -->
+      <div class="flex items-center gap-2">
+        <!-- Search -->
+        <label for="__search" class="flex w-40 sm:w-56 items-center justify-between rounded-md border border-white/10 bg-zinc-900/70 px-3 py-1.5 text-[12px] text-zinc-400 transition hover:border-white/20 hover:bg-zinc-900 cursor-pointer">
+          <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <span>Search docs</span>
+          </div>
+          <span class="hidden sm:flex items-center gap-0.5 rounded border border-white/10 bg-zinc-900 px-1.5 py-0.5 text-[10px]">⌘K</span>
+        </label>
+        
+        <!-- GitHub link -->
+        <a href="{{ config.repo_url }}" class="hidden sm:flex h-8 w-8 items-center justify-center rounded-md border border-white/10 bg-zinc-900/80 text-zinc-400 transition hover:border-white/20 hover:bg-zinc-900 hover:text-zinc-100">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+          </svg>
+        </a>
+        
+        <!-- Mobile menu toggle -->
+        <button data-md-toggle="drawer" class="inline-flex lg:hidden h-8 w-8 items-center justify-center rounded-md border border-white/10 bg-zinc-900/80 text-zinc-300 transition hover:border-white/20 hover:bg-zinc-900">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="4" width="7" height="16" rx="1"></rect>
+            <rect x="12" y="4" width="9" height="16" rx="1"></rect>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+</header>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+  // Reading progress indicator
+  window.addEventListener('scroll', () => {
+    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scrolled = (winScroll / height) * 100;
+    const progressBar = document.getElementById('reading-progress');
+    if (progressBar) {
+      progressBar.style.width = scrolled + '%';
+    }
+  });
+</script>
+{% endblock %}
