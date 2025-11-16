@@ -8,6 +8,7 @@ members = [
     # "chain/runtime",
     # "crates/*",
     "orchestrator/api",
+    "sdk/rust",
     # "runtimes/wasm-rust",
     # "sdk/rust",
     # "tools/*",

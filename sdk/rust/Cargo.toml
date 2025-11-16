@@ -1,0 +1,17 @@
+[package]
+name = "ainur-agent-sdk"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "Rust SDK for building Ainur Protocol agents"
+
+[lib]
+name = "ainur_agent_sdk"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+thiserror = "1.0"
+
+
