@@ -1,16 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Github } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 export function Header() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/90 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-700 bg-gradient-to-br from-indigo-500/30 to-purple-500/30">
-            <span className="text-xs font-semibold text-slate-50">AN</span>
+          <div className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-700 bg-slate-950">
+            <Image
+              src="/logo-ainur.svg"
+              alt="Ainur logo"
+              width={20}
+              height={20}
+              priority
+            />
           </div>
           <span className="text-sm font-semibold tracking-tight text-slate-100">
             Ainur Protocol
@@ -45,9 +51,12 @@ export function Header() {
           <span className="hidden text-[11px] text-slate-400 sm:inline">
             Foundation phase
           </span>
-          <Button size="sm" className="text-xs px-3 py-1" asChild>
-            <Link href="#waitlist">Join waitlist</Link>
-          </Button>
+          <Link
+            href="#waitlist"
+            className="inline-flex items-center rounded-md border border-indigo-500/60 bg-indigo-500/80 px-3 py-1 text-xs font-medium text-slate-50 hover:bg-indigo-400"
+          >
+            Join waitlist
+          </Link>
         </div>
       </div>
     </header>
