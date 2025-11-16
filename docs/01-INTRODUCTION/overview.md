@@ -1,6 +1,6 @@
 ---
 title: Ainur Protocol: System Overview
-author: Ainur Protocol Contributors
+author: Ainur Labs
 date: November 2025
 version: 1.0
 ---
