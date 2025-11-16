@@ -1,15 +1,12 @@
-# Layer 1 - Temporal (Blockchain)
+---
+title: Layer 1 - Temporal
+status: See architecture-structure/layer-1-temporal.md
+---
 
-This document describes the Substrate-based blockchain layer of Ainur Protocol.
+# Layer 1 - Temporal
 
-## Overview
+This document has been relocated. Please see:
 
-The Temporal layer provides consensus, state management, and economic security.
+**[Layer 1: Temporal (Consensus Layer)](../architecture-structure/layer-1-temporal.md)**
 
-## Key Components
-
-- Substrate runtime
-- Custom pallets
-- Consensus mechanism
-
-Details coming soon...
+The updated document provides complete specification of the consensus mechanism, custom pallets, economic parameters, and security analysis.
