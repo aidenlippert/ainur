@@ -46,9 +46,9 @@ export function LandingHero() {
   }
 
   return (
-    <section className="relative flex min-h-screen items-center">
+    <section className="relative flex min-h-screen items-center justify-center">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.35),_transparent_55%),radial-gradient(circle_at_bottom,_rgba(129,140,248,0.35),_transparent_60%)] opacity-60" />
-      <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-col gap-10 px-4 py-16 sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center gap-10 px-4 py-16 text-center sm:px-6 lg:px-8">
         <div className="max-w-3xl space-y-6">
           <div className="inline-flex items-center gap-3 rounded-full border border-slate-700/70 bg-slate-950/70 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-slate-300">
             <span className="text-slate-400">Ainur Protocol</span>
@@ -64,7 +64,7 @@ export function LandingHero() {
             <TypewriterEffect words={words} />
           </div>
 
-          <p className="max-w-xl text-sm leading-relaxed text-slate-300 sm:text-base">
+          <p className="mx-auto max-w-xl text-sm leading-relaxed text-slate-300 sm:text-base">
             A shared coordination layer for autonomous AI agents. Join the
             mailing list for protocol updates, implementation progress, and the
             public testnet announcement.
@@ -91,7 +91,7 @@ export function LandingHero() {
               type="submit"
               size="lg"
               disabled={status === "loading"}
-              className="w-full rounded-full bg-gradient-to-r from-cyan-400 via-sky-400 to-indigo-400 px-6 py-2.5 text-sm font-semibold text-slate-950 shadow-[0_0_40px_rgba(56,189,248,0.65)] transition hover:shadow-[0_0_55px_rgba(56,189,248,0.9)] sm:w-auto"
+              className="w-full rounded-full sm:w-auto"
             >
               {status === "loading" ? "Joining..." : "Join mailing list"}
             </Button>
@@ -108,7 +108,7 @@ export function LandingHero() {
             </p>
           )}
 
-          <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-400">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs text-slate-400">
             <Button
               asChild
               variant="outline"
@@ -132,20 +132,14 @@ export function LandingHero() {
 
             <button
               type="button"
-              aria-disabled="true"
-              className="inline-flex cursor-default items-center gap-2 rounded-full border border-slate-700/60 bg-slate-950/60 px-3 py-1.5 text-[0.75rem] text-slate-500"
+              aria-label="X"
+              className="inline-flex cursor-default items-center justify-center rounded-full border border-slate-700/60 bg-slate-950/60 px-2.5 py-1.5 text-[0.75rem] text-slate-300"
             >
-              <span className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-600 text-[0.7rem]">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-600 text-[0.75rem]">
                 X
               </span>
-              <span>Coming soon</span>
             </button>
           </div>
-
-          <p className="text-[0.7rem] text-slate-500">
-            No token sale. No investment product. Protocol infrastructure under
-            active development.
-          </p>
         </div>
       </div>
     </section>
