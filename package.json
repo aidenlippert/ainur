@@ -1,0 +1,14 @@
+{
+  "name": "ainur-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:docs": "pip install mkdocs-material mkdocs-awesome-pages-plugin mkdocs-macros-plugin mkdocs-git-revision-date-localized-plugin mkdocs-minify-plugin && python -m mkdocs build -f mkdocs.yml",
+    "build:web": "cd web && npm install && npm run build",
+    "build": "npm run build:docs && npm run build:web",
+    "postbuild": "mkdir -p dist && cp -r web/out/* dist/ && mkdir -p dist/docs && cp -r site/* dist/docs/"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  }
+}
