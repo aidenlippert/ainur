@@ -2,7 +2,7 @@
 # Handles both orchestrator API and chain RPC WebSocket
 
 # Orchestrator API
-api.ainur.dev {
+api.ainur.network {
     reverse_proxy localhost:8080
 
     # CORS headers for browser access from Vercel
@@ -32,13 +32,13 @@ api.ainur.dev {
 
     # Logging
     log {
-        output file /var/log/caddy/api.ainur.dev.log
+        output file /var/log/caddy/api.ainur.network.log
         format json
     }
 }
 
 # Chain RPC WebSocket
-rpc.ainur.dev {
+rpc.ainur.network {
     reverse_proxy localhost:9944 {
         # WebSocket support
         header_up Host {host}
@@ -62,7 +62,7 @@ rpc.ainur.dev {
 
     # Logging
     log {
-        output file /var/log/caddy/rpc.ainur.dev.log
+        output file /var/log/caddy/rpc.ainur.network.log
         format json
     }
 }
