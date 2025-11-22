@@ -34,7 +34,7 @@ export function useChain(address?: string) {
         });
 
         if (address) {
-          const accountInfo = await api.query.system.account(address);
+          const accountInfo: any = await api.query.system.account(address);
           const free = accountInfo.data.free.toBigInt();
           const denom = BigInt(10) ** BigInt(TOKEN_DECIMALS);
           const whole = free / denom;
