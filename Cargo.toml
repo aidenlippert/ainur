@@ -11,6 +11,7 @@ members = [
     "sdk/rust",
     "runtimes/wasm-rust",
     "agents/foundation/echo-wasm",
+    "chain/temporal-node/bindings",
     # "sdk/rust",
     # "tools/*",
 ]

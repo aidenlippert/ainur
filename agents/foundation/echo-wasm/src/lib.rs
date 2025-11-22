@@ -61,5 +61,3 @@ fn memory_as_slice_mut() -> &'static mut [u8] {
         core::slice::from_raw_parts_mut(ptr, 64 * 1024)
     }
 }
-
-

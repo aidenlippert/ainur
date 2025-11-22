@@ -5,11 +5,20 @@ edition = "2021"
 license = "Apache-2.0"
 description = "HTTP/JSON orchestrator API for the Ainur Protocol"
 
+[features]
+default = []
+postgres = ["sqlx", "sqlx/runtime-tokio-rustls", "sqlx/postgres", "sqlx/migrate", "chrono"]
+chain-bridge = ["subxt", "tokio-stream", "temporal-bindings", "subxt-signer"]
+wasm-engine = ["ainur-wasm-runtime"]
+
 [dependencies]
 ainur-core = { path = "../../crates/ainur-core" }
 ainur-agent-sdk = { path = "../../sdk/rust" }
+ainur-wasm-runtime = { path = "../../runtimes/wasm-rust", optional = true }
 axum = { version = "0.7", features = ["macros", "json"] }
 tokio = { workspace = true, features = ["full"] }
+tokio-stream = { version = "0.1", optional = true }
+tower-http = { version = "0.5", features = ["limit"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 thiserror = "1.0"
@@ -18,5 +27,16 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 blake3 = "1.5"
 base64 = "0.22"
+async-trait = { workspace = true }
+metrics = "0.23"
+metrics-exporter-prometheus = "0.14"
+sqlx = { version = "0.7", default-features = false, features = ["macros", "uuid", "chrono", "json", "runtime-tokio-rustls", "postgres"], optional = true }
+chrono = { version = "0.4", features = ["serde"], optional = true }
+subxt = { version = "0.44", optional = true }
+subxt-signer = { version = "0.44", features = ["sr25519"], optional = true }
+temporal-bindings = { path = "../../chain/temporal-node/bindings", optional = true }
+hex = "0.4"
 
-
+[dev-dependencies]
+anyhow = "1.0"
+reqwest = { version = "0.12", features = ["json"] }

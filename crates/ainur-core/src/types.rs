@@ -1,13 +1,15 @@
 //! Core types for the Ainur Protocol
 
-use parity_scale_codec::{Encode, Decode};
-use scale_info::TypeInfo;
-use serde::{Serialize, Deserialize};
-use alloc::vec::Vec;
 use alloc::string::String;
+use alloc::vec::Vec;
+use parity_scale_codec::{Decode, Encode};
+use scale_info::TypeInfo;
+use serde::{Deserialize, Serialize};
 
 /// Unique identifier for an agent in the network
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(
+    Clone, Copy, PartialEq, Eq, Hash, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize,
+)]
 pub struct AgentId([u8; 32]);
 
 impl AgentId {
@@ -36,7 +38,9 @@ impl AgentId {
 }
 
 /// Unique identifier for a task
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(
+    Clone, Copy, PartialEq, Eq, Hash, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize,
+)]
 pub struct TaskId([u8; 32]);
 
 impl TaskId {
@@ -52,7 +56,7 @@ impl TaskId {
 }
 
 /// Multi-dimensional reputation score
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub struct Reputation {
     /// Quality of work (0-100)
     pub quality: u32,
@@ -69,7 +73,7 @@ pub struct Reputation {
 }
 
 /// Domain of expertise
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub enum Domain {
     /// Natural Language Processing
     NLP,
@@ -88,7 +92,7 @@ pub enum Domain {
 }
 
 /// Task specification
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub struct Task {
     /// Unique task identifier
     pub id: TaskId,
@@ -107,7 +111,7 @@ pub struct Task {
 }
 
 /// Detailed task specification
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub struct TaskSpec {
     /// Human-readable description
     pub description: String,
@@ -122,7 +126,7 @@ pub struct TaskSpec {
 }
 
 /// Type of task
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub enum TaskType {
     /// Computation task
     Compute,
@@ -141,7 +145,7 @@ pub enum TaskType {
 }
 
 /// Expected output format
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub enum OutputFormat {
     /// Raw bytes
     Binary,
@@ -154,7 +158,7 @@ pub enum OutputFormat {
 }
 
 /// Requirements for task execution
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub struct Requirements {
     /// Minimum memory in bytes
     pub min_memory: Option<u64>,
@@ -169,7 +173,7 @@ pub struct Requirements {
 }
 
 /// Agent capability
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub enum Capability {
     /// Trusted Execution Environment
     TEE(TEEType),
@@ -186,7 +190,7 @@ pub enum Capability {
 }
 
 /// TEE types
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub enum TEEType {
     /// Intel SGX
     SGX,
@@ -199,7 +203,7 @@ pub enum TEEType {
 }
 
 /// ZK proof systems
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub enum ZKSystem {
     /// Groth16
     Groth16,
@@ -214,7 +218,7 @@ pub enum ZKSystem {
 }
 
 /// Hardware acceleration types
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub enum HardwareType {
     /// NVIDIA GPU
     NvidiaGPU(String),
@@ -231,7 +235,7 @@ pub enum HardwareType {
 }
 
 /// Verification levels for task execution
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub enum VerificationLevel {
     /// No verification required
     None,
@@ -248,7 +252,7 @@ pub enum VerificationLevel {
 }
 
 /// Budget constraints for a task
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub struct Budget {
     /// Maximum cost in protocol tokens
     pub max_cost: u128,
@@ -259,7 +263,7 @@ pub struct Budget {
 }
 
 /// Payment scheduling options
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub enum PaymentSchedule {
     /// Full payment upfront
     Upfront,
@@ -272,7 +276,7 @@ pub enum PaymentSchedule {
 }
 
 /// Task milestone
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub struct Milestone {
     /// Milestone identifier
     pub id: [u8; 16],
@@ -283,7 +287,7 @@ pub struct Milestone {
 }
 
 /// Bid from an agent for a task
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub struct Bid {
     /// Agent making the bid
     pub agent_id: AgentId,
@@ -300,7 +304,7 @@ pub struct Bid {
 }
 
 /// Guarantees offered by an agent
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub enum Guarantee {
     /// Completion by deadline
     CompletionTime(u64),
@@ -313,7 +317,7 @@ pub enum Guarantee {
 }
 
 /// Refund policy options
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub enum RefundPolicy {
     /// No refund
     None,
@@ -326,7 +330,7 @@ pub enum RefundPolicy {
 }
 
 /// Result of task execution
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub struct TaskResult {
     /// Task identifier
     pub task_id: TaskId,
@@ -343,7 +347,7 @@ pub struct TaskResult {
 }
 
 /// Proof of execution
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub enum ExecutionProof {
     /// No proof
     None,
@@ -352,14 +356,11 @@ pub enum ExecutionProof {
     /// Zero-knowledge proof
     ZKProof(Vec<u8>),
     /// Combined proof
-    Combined {
-        tee: Vec<u8>,
-        zk: Vec<u8>,
-    },
+    Combined { tee: Vec<u8>, zk: Vec<u8> },
 }
 
 /// Resources used during execution
-#[derive(Clone, PartialEq, Eq, Encode, Decode, TypeInfo, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Debug, Encode, Decode, TypeInfo, Serialize, Deserialize)]
 pub struct ResourceUsage {
     /// CPU time in milliseconds
     pub cpu_time_ms: u64,

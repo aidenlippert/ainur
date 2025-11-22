@@ -1,0 +1,9 @@
+FROM rust:1.78
+
+WORKDIR /app
+COPY . .
+
+RUN apt-get update && apt-get install -y libssl-dev pkg-config && \
+    cargo fetch
+
+CMD ["cargo", "run", "-p", "ainur-orchestrator-api", "--features", "postgres", "--release"]

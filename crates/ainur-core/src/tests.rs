@@ -22,7 +22,7 @@ mod tests {
                 specializations: vec![],
                 stake,
             };
-            
+
             assert!(reputation.quality <= constants::reputation::MAX_SCORE);
             assert!(reputation.reliability <= constants::reputation::MAX_SCORE);
             assert!(reputation.speed <= constants::reputation::MAX_SCORE);
@@ -35,7 +35,7 @@ mod tests {
         let id1 = AgentId::new([1u8; 32]);
         let id2 = AgentId::new([1u8; 32]);
         let id3 = AgentId::new([2u8; 32]);
-        
+
         assert_eq!(id1, id2);
         assert_ne!(id1, id3);
     }
@@ -67,7 +67,7 @@ mod tests {
             deadline: 1234567890,
             verification_level: VerificationLevel::BestEffort,
         };
-        
+
         assert_eq!(task.specification.description, "Test task");
         assert_eq!(task.budget.max_cost, 1000);
     }
@@ -82,7 +82,7 @@ mod tests {
             VerificationLevel::ZKProof,
             VerificationLevel::TEEWithZK,
         ];
-        
+
         // Ensure all variants can be created
         assert_eq!(levels.len(), 6);
     }
@@ -92,7 +92,7 @@ mod tests {
         let upfront = PaymentSchedule::Upfront;
         let on_completion = PaymentSchedule::OnCompletion;
         let streaming = PaymentSchedule::Streaming(100);
-        
+
         let milestone = PaymentSchedule::Milestone(vec![
             (
                 Milestone {
@@ -111,7 +111,7 @@ mod tests {
                 500,
             ),
         ]);
-        
+
         match milestone {
             PaymentSchedule::Milestone(milestones) => {
                 assert_eq!(milestones.len(), 2);
@@ -125,12 +125,12 @@ mod tests {
     fn test_resource_usage() {
         let usage = ResourceUsage {
             cpu_time_ms: 1000,
-            memory_bytes: 1024 * 1024 * 512, // 512 MB
-            storage_bytes: 1024 * 1024 * 100, // 100 MB
+            memory_bytes: 1024 * 1024 * 512,   // 512 MB
+            storage_bytes: 1024 * 1024 * 100,  // 100 MB
             bandwidth_bytes: 1024 * 1024 * 10, // 10 MB
             gpu_time_ms: Some(500),
         };
-        
+
         assert_eq!(usage.cpu_time_ms, 1000);
         assert_eq!(usage.gpu_time_ms, Some(500));
     }
@@ -145,16 +145,19 @@ mod tests {
             Capability::Location("us-west-2".to_string()),
             Capability::Custom("custom".to_string(), "value".to_string()),
         ];
-        
+
         assert_eq!(capabilities.len(), 6);
     }
 
     #[test]
     fn test_error_creation() {
-        let err1 = CoreError::InvalidLength { expected: 32, actual: 16 };
+        let err1 = CoreError::InvalidLength {
+            expected: 32,
+            actual: 16,
+        };
         let err2 = ReputationError::InvalidScore(150);
         let err3 = TaskError::NotFound(TaskId::new([1u8; 32]));
-        
+
         assert!(err1.to_string().contains("Invalid length"));
         assert!(err2.to_string().contains("must be 0-100"));
         assert!(err3.to_string().contains("Task not found"));
@@ -174,7 +177,7 @@ mod tests {
                 Guarantee::RefundPolicy(RefundPolicy::Full),
             ],
         };
-        
+
         assert_eq!(bid.value, 800);
         assert_eq!(bid.guarantees.len(), 3);
     }
@@ -190,7 +193,7 @@ mod tests {
                 zk: vec![5, 6, 7, 8],
             },
         ];
-        
+
         for proof in proofs {
             match proof {
                 ExecutionProof::None => {}

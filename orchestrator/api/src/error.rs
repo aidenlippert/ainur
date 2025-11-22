@@ -40,11 +40,7 @@ impl IntoResponse for ApiError {
         let (status, error, message) = match self {
             ApiError::BadRequest(msg) => (StatusCode::BAD_REQUEST, "bad_request", msg),
             ApiError::NotFound(msg) => (StatusCode::NOT_FOUND, "not_found", msg),
-            ApiError::Internal(msg) => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "internal_error",
-                msg,
-            ),
+            ApiError::Internal(msg) => (StatusCode::INTERNAL_SERVER_ERROR, "internal_error", msg),
         };
 
         let body = Json(ErrorBody { error, message });
@@ -68,6 +64,7 @@ impl From<CoreError> for ApiError {
             | CoreError::EconomicConstraintViolation { .. } => {
                 ApiError::BadRequest(err.to_string())
             }
+            CoreError::VerificationFailed { .. } => ApiError::BadRequest(err.to_string()),
             CoreError::SerializationError(e)
             | CoreError::CryptoError(e)
             | CoreError::NetworkError(e)
@@ -85,5 +82,3 @@ impl ApiError {
         }
     }
 }
-
-

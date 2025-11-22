@@ -1,10 +1,9 @@
 use std::sync::Arc;
 
-use ainur_agent_sdk::{AinurAgent, EchoAgent, TaskContext};
-use ainur_core::Task;
-
 use crate::error::ApiError;
-use crate::model::{ResultSubmissionRequest, ResultView, StoredResult, StoredTask};
+use crate::model::{ResultSubmissionRequest, StoredResult, StoredTask};
+use ainur_agent_sdk::{AinurAgent, EchoAgent, TaskContext};
+use base64::{engine::general_purpose, Engine as _};
 
 /// Trait abstracting over task execution backends.
 ///
@@ -29,7 +28,35 @@ impl ExecutionEngine for LocalEchoEngine {
             task_id: task.id.clone(),
             input: task.task.specification.input.clone(),
         };
-        EchoAgent::execute(&ctx).map_err(|e| ApiError::Internal.with_msg(e.to_string()))
+        EchoAgent::execute(&ctx).map_err(|e| ApiError::Internal(e.to_string()))
+    }
+}
+
+/// WASM-based execution engine backed by CognitionWasmEngine.
+#[cfg(feature = "wasm-engine")]
+pub struct WasmExecutionEngine {
+    inner: CognitionWasmEngine,
+}
+
+#[cfg(feature = "wasm-engine")]
+impl WasmExecutionEngine {
+    pub fn from_path(path: &str) -> Result<Self, ApiError> {
+        let inner = CognitionWasmEngine::from_file(path)
+            .map_err(|e| ApiError::Internal(format!("failed to load wasm module: {e}")))?;
+        Ok(Self { inner })
+    }
+}
+
+#[cfg(feature = "wasm-engine")]
+impl ExecutionEngine for WasmExecutionEngine {
+    fn execute(&self, task: &StoredTask) -> Result<Vec<u8>, ApiError> {
+        let ctx = TaskContext {
+            task_id: task.id.clone(),
+            input: task.task.specification.input.clone(),
+        };
+        self.inner
+            .execute(&ctx)
+            .map_err(|e| ApiError::Internal(e.to_string()))
     }
 }
 
@@ -41,7 +68,7 @@ pub fn execute_and_build_result(
     agent_id: String,
 ) -> Result<StoredResult, ApiError> {
     let output_bytes = engine.execute(task)?;
-    let output_base64 = base64::encode(&output_bytes);
+    let output_base64 = general_purpose::STANDARD.encode(&output_bytes);
 
     let submission = ResultSubmissionRequest {
         task_id: task.id.clone(),
@@ -52,4 +79,5 @@ pub fn execute_and_build_result(
     StoredResult::from_submission(submission, task)
 }
 
-
+#[cfg(feature = "wasm-engine")]
+use ainur_wasm_runtime::CognitionWasmEngine;

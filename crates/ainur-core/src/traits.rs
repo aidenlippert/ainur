@@ -1,16 +1,16 @@
 //! Core traits for the Ainur Protocol
 
-use crate::{types::*, errors::*};
+use crate::{errors::*, types::*};
 use alloc::vec::Vec;
 
 /// Trait for entities that can execute tasks
 pub trait TaskExecutor {
     /// Check if this executor can handle the given task
     fn can_execute(&self, task: &Task) -> bool;
-    
+
     /// Estimate resources and time needed for execution
     fn estimate(&self, task: &Task) -> Result<ExecutionEstimate>;
-    
+
     /// Execute the task and return the result
     async fn execute(&mut self, task: Task) -> Result<TaskResult>;
 }
@@ -29,13 +29,13 @@ pub struct ExecutionEstimate {
 pub trait ReputationSystem {
     /// Calculate reputation score for an agent
     fn calculate_reputation(&self, agent_id: &AgentId, window: u64) -> Result<Reputation>;
-    
+
     /// Update reputation based on task result
     fn update_reputation(&mut self, agent_id: &AgentId, result: &TaskResult) -> Result<()>;
-    
+
     /// Apply decay to reputation scores
     fn apply_decay(&mut self, decay_rate: f64) -> Result<()>;
-    
+
     /// Get top agents by reputation in a domain
     fn get_top_agents(&self, domain: &Domain, count: usize) -> Result<Vec<(AgentId, Reputation)>>;
 }
@@ -44,7 +44,7 @@ pub trait ReputationSystem {
 pub trait Verifier {
     /// Verify the execution of a task
     fn verify(&self, task: &Task, result: &TaskResult) -> Result<VerificationResult>;
-    
+
     /// Get the verification level this verifier supports
     fn verification_level(&self) -> VerificationLevel;
 }
@@ -75,10 +75,10 @@ pub enum VerificationReport {
 pub trait AuctionMechanism {
     /// Add a bid to the auction
     fn add_bid(&mut self, bid: Bid) -> Result<()>;
-    
+
     /// Run the auction and determine allocations
     fn run_auction(&self) -> Result<AuctionResult>;
-    
+
     /// Calculate payments based on the mechanism
     fn calculate_payments(&self, allocation: &Allocation) -> Result<PaymentSchedule>;
 }
@@ -107,10 +107,10 @@ pub struct Allocation {
 pub trait EconomicMechanism {
     /// Calculate incentive rewards
     fn calculate_rewards(&self, performance: &Performance) -> Result<u128>;
-    
+
     /// Apply penalties for violations
     fn calculate_penalty(&self, violation: &Violation) -> Result<u128>;
-    
+
     /// Determine fee structure
     fn calculate_fees(&self, transaction_type: TransactionType) -> Result<u128>;
 }
@@ -155,10 +155,10 @@ pub enum TransactionType {
 pub trait MessageRouter {
     /// Route a message to its destination
     async fn route_message(&mut self, message: Message) -> Result<()>;
-    
+
     /// Update routing tables based on network conditions
     fn update_routing(&mut self, metrics: NetworkMetrics) -> Result<()>;
-    
+
     /// Get next hop for a destination
     fn get_next_hop(&self, destination: &AgentId) -> Option<PeerId>;
 }
@@ -193,10 +193,10 @@ pub struct PeerId(pub Vec<u8>);
 pub trait ConsensusParticipant {
     /// Propose a new block
     fn propose_block(&self, transactions: Vec<Transaction>) -> Result<Block>;
-    
+
     /// Validate a proposed block
     fn validate_block(&self, block: &Block) -> Result<bool>;
-    
+
     /// Finalize a block
     fn finalize_block(&mut self, block: Block) -> Result<()>;
 }
@@ -219,10 +219,10 @@ pub struct Block {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     // Mock implementation for testing
     struct MockReputationSystem;
-    
+
     impl ReputationSystem for MockReputationSystem {
         fn calculate_reputation(&self, _agent_id: &AgentId, _window: u64) -> Result<Reputation> {
             Ok(Reputation {
@@ -234,25 +234,29 @@ mod tests {
                 stake: 1000,
             })
         }
-        
+
         fn update_reputation(&mut self, _agent_id: &AgentId, _result: &TaskResult) -> Result<()> {
             Ok(())
         }
-        
+
         fn apply_decay(&mut self, _decay_rate: f64) -> Result<()> {
             Ok(())
         }
-        
-        fn get_top_agents(&self, _domain: &Domain, _count: usize) -> Result<Vec<(AgentId, Reputation)>> {
+
+        fn get_top_agents(
+            &self,
+            _domain: &Domain,
+            _count: usize,
+        ) -> Result<Vec<(AgentId, Reputation)>> {
             Ok(vec![])
         }
     }
-    
+
     #[test]
     fn test_reputation_trait() {
         let mut system = MockReputationSystem;
         let agent_id = AgentId::new([1u8; 32]);
-        
+
         let reputation = system.calculate_reputation(&agent_id, 86400).unwrap();
         assert_eq!(reputation.quality, 80);
         assert_eq!(reputation.reliability, 90);

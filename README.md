@@ -126,11 +126,12 @@ cargo audit
 - [Architecture Overview](docs/architecture/overview.md)
 - [Developer Guide](docs/guides/developer.md)
 - [Protocol Specification](docs/specs/protocol.md)
+- [Agent Operating Manual](AGENT.md)
 - [API Reference](https://docs.ainur.ai/api)
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) and the agent-facing [Operating Manual](AGENT.md) for details.
 
 ### Development Process
 

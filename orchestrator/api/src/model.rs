@@ -1,4 +1,7 @@
-use ainur_core::{AgentId, Bid, Budget, Requirements, Task, TaskResult, TaskSpec, VerificationLevel};
+use ainur_core::{
+    AgentId, Bid, Budget, Requirements, Task, TaskResult, TaskSpec, VerificationLevel,
+};
+use base64::{engine::general_purpose, Engine as _};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -51,7 +54,7 @@ pub struct TaskSubmissionRequest {
 ///
 /// This wraps the `ainur-core::Task` with additional metadata needed for API
 /// responses and orchestration logic.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StoredTask {
     pub id: String,
     pub client_task_id: Option<String>,
@@ -61,7 +64,7 @@ pub struct StoredTask {
 }
 
 /// Internal representation of a bid stored by the orchestrator.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StoredBid {
     pub id: String,
     pub task_id: String,
@@ -71,7 +74,7 @@ pub struct StoredBid {
 }
 
 /// Internal representation of a task result stored by the orchestrator.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StoredResult {
     pub id: String,
     pub task_id: String,
@@ -112,6 +115,51 @@ pub struct ResultView {
     pub completed_at: u64,
 }
 
+/// Request payload to enqueue an outbound extrinsic into the chain outbox.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OutboundExtrinsicRequest {
+    pub pallet: String,
+    pub call: String,
+    /// Arbitrary JSON payload; persisted as a string for later submission.
+    #[serde(default)]
+    pub payload: serde_json::Value,
+}
+
+/// Response containing the correlation identifier for an enqueued extrinsic.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OutboxEnqueueResponse {
+    pub correlation_id: String,
+    pub status: &'static str,
+}
+
+/// View of an outbound extrinsic status.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OutboxStatusView {
+    pub correlation_id: String,
+    pub pallet: String,
+    pub call: String,
+    pub status: String,
+    pub retry_count: i32,
+    pub last_error: Option<String>,
+    pub created_at: Option<String>,
+    pub processed_at: Option<String>,
+}
+
+/// Query parameters for listing outbox entries.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct OutboxQuery {
+    pub status: Option<String>,
+    pub limit: Option<i64>,
+    pub offset: Option<i64>,
+}
+
+/// Generic response wrapper that can carry a correlation id plus payload.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ResponseWithCorrelation<T> {
+    pub correlation_id: Option<String>,
+    pub data: T,
+}
+
 impl TaskView {
     pub fn from_stored(stored: &StoredTask) -> Self {
         Self {
@@ -144,7 +192,7 @@ impl ResultView {
             id: stored.id.clone(),
             task_id: stored.task_id.clone(),
             agent_id: stored.agent_id.clone(),
-            output_base64: base64::encode(&stored.result.output),
+            output_base64: general_purpose::STANDARD.encode(&stored.result.output),
             completed_at: stored.result.completed_at,
         }
     }
@@ -160,9 +208,9 @@ impl StoredTask {
             ));
         }
 
-        let raw_input = base64::decode(&submission.input_base64).map_err(|_| {
-            ApiError::BadRequest("input_base64 must be valid base64".to_string())
-        })?;
+        let raw_input = general_purpose::STANDARD
+            .decode(&submission.input_base64)
+            .map_err(|_| ApiError::BadRequest("input_base64 must be valid base64".to_string()))?;
 
         let task = build_core_task(&submission, raw_input);
 
@@ -234,9 +282,9 @@ impl StoredResult {
             ));
         }
 
-        let output = base64::decode(&submission.output_base64).map_err(|_| {
-            ApiError::BadRequest("output_base64 must be valid base64".to_string())
-        })?;
+        let output = general_purpose::STANDARD
+            .decode(&submission.output_base64)
+            .map_err(|_| ApiError::BadRequest("output_base64 must be valid base64".to_string()))?;
 
         let result = build_core_result(&submission, &task.task, output);
 
@@ -359,5 +407,3 @@ fn requester_hex(task: &Task) -> String {
     }
     out
 }
-
-

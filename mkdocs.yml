@@ -40,6 +40,7 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.details
   - admonition
+  - pymdownx.snippets
   - toc:
       permalink: true
   - pymdownx.arithmatex:
@@ -53,4 +54,5 @@ extra_javascript:
 
 nav:
   - Whitepaper: whitepaper.md
+  - Agent Operating Manual: AGENT.md
   - GitHub: https://github.com/aidenlippert/ainur

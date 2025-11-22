@@ -1,0 +1,29 @@
+groups:
+  - name: ainur-orchestrator
+    rules:
+      - alert: OutboxDeadRows
+        expr: outbox_dead_total > 0
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "Outbox has dead rows"
+          description: "Outbox dead rows detected. Investigate correlation_ids and payloads."
+
+      - alert: OutboxFailing
+        expr: rate(outbox_failed_total[5m]) > 0
+        for: 10m
+        labels:
+          severity: warn
+        annotations:
+          summary: "Outbox failures increasing"
+          description: "Outbox failed submissions observed over the last 10m."
+
+      - alert: ReplayLag
+        expr: outbox_retried_total > 50
+        for: 10m
+        labels:
+          severity: warn
+        annotations:
+          summary: "Outbox retry volume high"
+          description: "Retries exceeded 50; check chain connectivity or payload validity."

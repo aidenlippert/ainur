@@ -1,6 +1,7 @@
 # Contributing to Ainur Protocol
 
 Thank you for your interest in contributing to Ainur Protocol! This document provides guidelines and instructions for contributing.
+If you are using the Codex AI agent within this repo, follow the operating contract in [AGENT.md](AGENT.md) alongside this guide.
 
 ## 🌟 Ways to Contribute
 

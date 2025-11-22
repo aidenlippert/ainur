@@ -151,13 +151,19 @@ mod tests {
 
     #[test]
     fn test_core_error_display() {
-        let err = CoreError::InvalidLength { expected: 32, actual: 16 };
+        let err = CoreError::InvalidLength {
+            expected: 32,
+            actual: 16,
+        };
         assert_eq!(err.to_string(), "Invalid length: expected 32, got 16");
     }
 
     #[test]
     fn test_reputation_error() {
         let err = ReputationError::InvalidScore(150);
-        assert_eq!(err.to_string(), "Invalid reputation score: 150 (must be 0-100)");
+        assert_eq!(
+            err.to_string(),
+            "Invalid reputation score: 150 (must be 0-100)"
+        );
     }
 }

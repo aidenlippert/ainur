@@ -1,5 +1,5 @@
 //! Core types and traits for the Ainur Protocol
-//! 
+//!
 //! This crate provides the foundational types used throughout the Ainur ecosystem,
 //! including agent identifiers, task specifications, reputation scores, and more.
 
@@ -7,15 +7,15 @@
 
 extern crate alloc;
 
-pub mod types;
+pub mod constants;
 pub mod errors;
 pub mod traits;
-pub mod constants;
+pub mod types;
 
-pub use types::*;
+pub use constants::*;
 pub use errors::*;
 pub use traits::*;
-pub use constants::*;
+pub use types::*;
 
 #[cfg(test)]
 mod tests;
