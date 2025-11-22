@@ -178,20 +178,20 @@ export default function NewAgentPage() {
               type="button"
               className="gap-2"
               onClick={() => register.mutate()}
-              disabled={register.isLoading}
+              disabled={register.isPending}
             >
               <Shield className="h-4 w-4" />
-              {register.isLoading ? "Submitting..." : "Register & Sign"}
+              {register.isPending ? "Submitting..." : "Register & Sign"}
             </Button>
             <Button
               variant="outline"
               type="button"
               className="gap-2 border-white/20"
               onClick={() => stake.mutate()}
-              disabled={stake.isLoading}
+              disabled={stake.isPending}
             >
               <Wallet className="h-4 w-4" />
-              {stake.isLoading ? "Staking..." : "Stake 100 AINU"}
+              {stake.isPending ? "Staking..." : "Stake 100 AINU"}
             </Button>
             {register.isSuccess && (
               <span className="text-xs text-emerald-200">

@@ -203,10 +203,10 @@ export default function CreateTaskPage() {
               type="button"
               className="gap-2"
               onClick={() => mutation.mutate()}
-              disabled={mutation.isLoading}
+              disabled={mutation.isPending}
             >
               <Timer className="h-4 w-4" />
-              {mutation.isLoading ? "Submitting..." : "Create & Fund"}
+              {mutation.isPending ? "Submitting..." : "Create & Fund"}
             </Button>
             {mutation.isSuccess && (
               <span className="text-xs text-emerald-200">
