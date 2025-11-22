@@ -121,10 +121,10 @@ export async function fetchDashboard(): Promise<Dashboard> {
     if (!raw || raw.total_agents === undefined) return raw as unknown as Dashboard;
     return {
       stats: {
-        agents: raw.total_agents,
-        tasks: raw.total_tasks,
-        completed: raw.completed_tasks,
-        pending: raw.pending_tasks,
+        agents: raw.total_agents ?? 0,
+        tasks: raw.total_tasks ?? 0,
+        completed: raw.completed_tasks ?? 0,
+        pending: raw.pending_tasks ?? 0,
       },
       ops: raw.ops ?? [],
     };
