@@ -1,0 +1,68 @@
+# Combined Caddyfile for alice (152.42.207.188)
+# Handles both orchestrator API and chain RPC WebSocket
+
+# Orchestrator API
+api.ainur.dev {
+    reverse_proxy localhost:8080
+
+    # CORS headers for browser access from Vercel
+    header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+        Access-Control-Max-Age "3600"
+    }
+
+    # Handle CORS preflight
+    @options {
+        method OPTIONS
+    }
+    respond @options 204
+
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
+    # Enable gzip compression
+    encode gzip
+
+    # Logging
+    log {
+        output file /var/log/caddy/api.ainur.dev.log
+        format json
+    }
+}
+
+# Chain RPC WebSocket
+rpc.ainur.dev {
+    reverse_proxy localhost:9944 {
+        # WebSocket support
+        header_up Host {host}
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    # CORS headers for browser WebSocket connections
+    header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+    }
+
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+    }
+
+    # Logging
+    log {
+        output file /var/log/caddy/rpc.ainur.dev.log
+        format json
+    }
+}
