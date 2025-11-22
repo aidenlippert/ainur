@@ -184,11 +184,11 @@ export async function fetchTaskDetail(id: string): Promise<TaskDetail | null> {
       verification: "Optimistic (no disputes)",
       matched: "Matched with did:ainur:789",
       timeline: [
-        { title: "Created", ts: "2m ago", state: "done" },
-        { title: "Bidding", ts: "live", state: "active" },
-        { title: "Running", ts: "", state: "pending" },
-        { title: "Verifying", ts: "", state: "pending" },
-        { title: "Finalized", ts: "", state: "pending" },
+        { title: "Created", ts: "2m ago", state: "done" as const },
+        { title: "Bidding", ts: "live", state: "active" as const },
+        { title: "Running", ts: "", state: "pending" as const },
+        { title: "Verifying", ts: "", state: "pending" as const },
+        { title: "Finalized", ts: "", state: "pending" as const },
       ],
     };
   };
@@ -210,11 +210,11 @@ export async function fetchTaskDetail(id: string): Promise<TaskDetail | null> {
       verification: t.verification ?? "Optimistic",
       matched: t.matched_agent ?? t.matched ?? "Pending",
       timeline: t.timeline ?? [
-        { title: "Created", ts: "", state: "done" },
-        { title: "Bidding", ts: "", state: "active" },
-        { title: "Running", ts: "", state: "pending" },
-        { title: "Verifying", ts: "", state: "pending" },
-        { title: "Finalized", ts: "", state: "pending" },
+        { title: "Created", ts: "", state: "done" as const },
+        { title: "Bidding", ts: "", state: "active" as const },
+        { title: "Running", ts: "", state: "pending" as const },
+        { title: "Verifying", ts: "", state: "pending" as const },
+        { title: "Finalized", ts: "", state: "pending" as const },
       ],
     };
   });
