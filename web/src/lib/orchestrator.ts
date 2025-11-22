@@ -205,10 +205,10 @@ export async function fetchTaskDetail(id: string): Promise<TaskDetail | null> {
       escrow: t.max_budget ? `${t.max_budget} AINU` : t.budget ?? "-",
       minRep: t.min_reputation ?? 0,
       timeout: t.deadline ? `${t.deadline}s` : "",
-      inputCid: t.input_cid ?? t.inputCid ?? "",
-      outputCid: t.output_cid ?? t.outputCid ?? "",
+      inputCid: t.input_cid ?? "",
+      outputCid: t.output_cid ?? "",
       verification: t.verification ?? "Optimistic",
-      matched: t.matched_agent ?? t.matched ?? "Pending",
+      matched: t.matched_agent ?? "Pending",
       timeline: t.timeline ?? [
         { title: "Created", ts: "", state: "done" as const },
         { title: "Bidding", ts: "", state: "active" as const },
