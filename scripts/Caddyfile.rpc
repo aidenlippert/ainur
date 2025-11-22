@@ -1,0 +1,31 @@
+# Caddyfile for RPC droplet (152.42.207.188 - alice validator)
+# This provides WSS termination for the chain WebSocket endpoint
+
+rpc.ainur.dev {
+    reverse_proxy localhost:9944 {
+        # WebSocket support
+        header_up Host {host}
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    # CORS headers for browser WebSocket connections
+    header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+    }
+
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+    }
+
+    # Logging
+    log {
+        output file /var/log/caddy/rpc.ainur.dev.log
+        format json
+    }
+}

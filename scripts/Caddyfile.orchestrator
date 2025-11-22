@@ -1,0 +1,37 @@
+# Caddyfile for orchestrator droplet (138.197.42.173)
+# This provides HTTPS termination and CORS for the orchestrator API
+
+api.ainur.dev {
+    reverse_proxy localhost:8080
+
+    # CORS headers for browser access from Vercel
+    header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+        Access-Control-Max-Age "3600"
+    }
+
+    # Handle CORS preflight
+    @options {
+        method OPTIONS
+    }
+    respond @options 204
+
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
+    # Enable gzip compression
+    encode gzip
+
+    # Logging
+    log {
+        output file /var/log/caddy/api.ainur.dev.log
+        format json
+    }
+}
