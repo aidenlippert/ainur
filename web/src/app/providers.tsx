@@ -3,6 +3,7 @@
 import { ReactNode, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
+import { CHAIN_WS } from "@/lib/config";
 
 const WalletProvider = dynamic(
   () => import("@/lib/wallet-context").then((mod) => ({ default: mod.WalletProvider })),
@@ -14,7 +15,7 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={client}>
-      <WalletProvider>{children}</WalletProvider>
+      <WalletProvider chainWs={CHAIN_WS}>{children}</WalletProvider>
     </QueryClientProvider>
   );
 }

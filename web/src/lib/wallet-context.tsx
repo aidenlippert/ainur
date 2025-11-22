@@ -11,7 +11,6 @@ import {
 import { web3Accounts, web3Enable, web3FromAddress } from "@polkadot/extension-dapp";
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import type { SubmittableExtrinsic } from "@polkadot/api/types";
-import { CHAIN_WS } from "@/lib/config";
 
 type WalletStatus = "disconnected" | "connecting" | "connected" | "error";
 
@@ -28,7 +27,7 @@ type WalletCtx = {
 
 const WalletContext = createContext<WalletCtx | undefined>(undefined);
 
-export function WalletProvider({ children }: { children: ReactNode }) {
+export function WalletProvider({ children, chainWs }: { children: ReactNode; chainWs: string }) {
   const [status, setStatus] = useState<WalletStatus>("disconnected");
   const [addresses, setAddresses] = useState<string[]>([]);
   const [selected, setSelected] = useState<string | undefined>();
@@ -48,7 +47,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       if (addrs.length === 0) {
         throw new Error("No accounts in extension.");
       }
-      const provider = new WsProvider(CHAIN_WS);
+      const provider = new WsProvider(chainWs);
       const apiInstance = await ApiPromise.create({ provider });
       setAddresses(addrs);
       setSelected(addrs[0]);
@@ -58,7 +57,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       setError(err instanceof Error ? err.message : "Wallet connection failed");
       setStatus("error");
     }
-  }, []);
+  }, [chainWs]);
 
   const select = useCallback((addr: string) => {
     setSelected(addr);
