@@ -59,7 +59,7 @@ export default function AgentsPage() {
             </div>
 
             <div className="mt-3 flex flex-wrap gap-2">
-              {agent.caps.map((cap) => (
+              {(agent.caps ?? []).map((cap) => (
                 <span
                   key={cap}
                   className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-200"
