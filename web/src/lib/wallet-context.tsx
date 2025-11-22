@@ -9,7 +9,8 @@ import {
   ReactNode,
 } from "react";
 import { web3Accounts, web3Enable, web3FromAddress } from "@polkadot/extension-dapp";
-import { ApiPromise, WsProvider, SubmittableExtrinsic } from "@polkadot/api";
+import { ApiPromise, WsProvider } from "@polkadot/api";
+import type { SubmittableExtrinsic } from "@polkadot/api/types";
 import { CHAIN_WS } from "@/lib/config";
 
 type WalletStatus = "disconnected" | "connecting" | "connected" | "error";
