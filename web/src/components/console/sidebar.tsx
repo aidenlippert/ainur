@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
+import { CHAIN_WS } from "@/lib/config";
 import {
   LayoutDashboard,
   Bot,
@@ -73,7 +74,7 @@ export function ConsoleSidebar() {
           Devnet • Live
         </div>
         <div className="mt-1 text-xs text-slate-300">
-          RPC: <span className="font-mono text-slate-200">ws://127.0.0.1:9944</span>
+          RPC: <span className="font-mono text-slate-200">{CHAIN_WS}</span>
         </div>
       </div>
     </aside>

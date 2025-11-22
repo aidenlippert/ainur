@@ -5,6 +5,7 @@ import { Droplets, Copy } from "lucide-react";
 import { useWallet } from "@/lib/wallet-context";
 import { useMutation } from "@tanstack/react-query";
 import { requestFaucet } from "@/lib/orchestrator";
+import { CHAIN_WS } from "@/lib/config";
 
 export default function FaucetPage() {
   const { selected, connect, status } = useWallet();
@@ -38,7 +39,7 @@ export default function FaucetPage() {
               <Copy className="h-4 w-4 cursor-pointer text-slate-500" />
             </div>
             <div className="text-sm text-slate-400">
-              Network: devnet • RPC ws://127.0.0.1:9944
+              Network: devnet • RPC {CHAIN_WS}
             </div>
           </div>
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-indigo-500 text-white shadow-lg shadow-indigo-500/30">
