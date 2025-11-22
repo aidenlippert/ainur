@@ -6,7 +6,8 @@ ALTER TABLE bids
 
 ALTER TABLE results
     ADD COLUMN IF NOT EXISTS proof_base64 TEXT,
-    ADD COLUMN IF NOT EXISTS resources JSONB;
+    ADD COLUMN IF NOT EXISTS resources JSONB,
+    ADD COLUMN IF NOT EXISTS chain_task_id BIGINT;
 
 -- Indexes to speed lookups by chain ids once populated.
 CREATE INDEX IF NOT EXISTS bids_chain_task_idx ON bids USING btree ((stored_json->>'chain_task_id'));

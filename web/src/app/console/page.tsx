@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button";
 import { MetricCard, type Accent } from "@/components/console/metric-card";
 import { ArrowUpRight, Zap, ShieldCheck, Wallet2, Terminal } from "lucide-react";
 import { fetchDashboard } from "@/lib/orchestrator";
+import { fetchSyncStatus } from "@/lib/orchestrator";
 import { useWallet } from "@/lib/wallet-context";
 import { useChain } from "@/lib/use-chain";
+import { cn } from "@/lib/cn";
+import { useExtrinsic } from "@/lib/use-extrinsic";
 
 type Stat = {
   label: string;
@@ -17,11 +20,11 @@ type Stat = {
   accent: Accent;
 };
 
-const stats: Stat[] = [
-  { label: "Active agents", value: "218", delta: "+12 today", accent: "violet" },
-  { label: "Tasks in flight", value: "47", delta: "+6", accent: "cyan" },
-  { label: "Escrow locked", value: "38,420 AINU", delta: "+4.2%", accent: "emerald" },
-  { label: "Finality", value: "6s", helper: "BABE / GRANDPA", accent: "amber" },
+const fallbackStats: Stat[] = [
+  { label: "Active agents", value: "—", accent: "violet" },
+  { label: "Tasks", value: "—", accent: "cyan" },
+  { label: "Completed", value: "—", accent: "emerald" },
+  { label: "Pending", value: "—", accent: "amber" },
 ];
 
 const quickLinks = [
@@ -48,21 +51,46 @@ const quickLinks = [
 ];
 
 export default function ConsoleDashboard() {
-  const { data } = useQuery({
+  const { data, isError, isFetching } = useQuery({
     queryKey: ["dashboard"],
     queryFn: fetchDashboard,
     refetchInterval: 3000,
   });
 
-  const { status, selected, connect, error } = useWallet();
+  const { data: sync } = useQuery({
+    queryKey: ["sync-status"],
+    queryFn: fetchSyncStatus,
+    refetchInterval: 5000,
+  });
+
+  const { status, selected, addresses, select, connect, error } = useWallet();
   const chain = useChain(selected);
+  const { status: txStatus, txHash, error: txError } = useExtrinsic();
+  const apiStatus = isError ? "Offline" : data ? "Online" : isFetching ? "Connecting..." : "Unknown";
 
   return (
     <div className="space-y-10">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="text-xs uppercase tracking-[0.2em] text-slate-400">
-            Ainur Console
+          <div className="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-slate-400">
+            <span>Ainur Console</span>
+            <span
+              className={cn(
+                "flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-medium",
+                apiStatus === "Online"
+                  ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-100"
+                  : apiStatus === "Offline"
+                  ? "border-amber-400/50 bg-amber-500/10 text-amber-100"
+                  : "border-white/10 bg-white/5 text-cyan-200"
+              )}
+            >
+              API {apiStatus}
+            </span>
+            {chain.chain && (
+              <span className="flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-medium text-emerald-200">
+                {chain.chain}
+              </span>
+            )}
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-white">
             Mission control for agents & tasks
@@ -89,7 +117,15 @@ export default function ConsoleDashboard() {
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
+        {(data
+          ? [
+              { label: "Agents", value: String(data.stats.agents), accent: "violet" as Accent },
+              { label: "Tasks", value: String(data.stats.tasks), accent: "cyan" as Accent },
+              { label: "Completed", value: String(data.stats.completed), accent: "emerald" as Accent },
+              { label: "Pending", value: String(data.stats.pending), accent: "amber" as Accent },
+            ]
+          : fallbackStats
+        ).map((stat) => (
           <MetricCard
             key={stat.label}
             label={stat.label}
@@ -127,16 +163,30 @@ export default function ConsoleDashboard() {
                 ? "Connecting..."
                 : "Connect wallet"}
             </Button>
-            {selected && (
-              <span className="rounded-lg border border-white/15 bg-black/40 px-3 py-2 font-mono text-xs text-cyan-200">
-                {selected.slice(0, 10)}…
-              </span>
+            {addresses.length > 0 && (
+              <select
+                value={selected ?? addresses[0]}
+                onChange={(e) => select(e.target.value)}
+                className="rounded-lg border border-white/15 bg-black/40 px-2 py-2 text-xs text-cyan-100"
+              >
+                {addresses.map((addr) => (
+                  <option key={addr} value={addr}>
+                    {addr.slice(0, 10)}…
+                  </option>
+                ))}
+              </select>
             )}
             {chain.balance && (
               <span className="rounded-lg border border-white/15 bg-black/40 px-3 py-2 font-mono text-xs text-emerald-200">
                 {chain.balance}
               </span>
             )}
+            {txStatus === "finalized" && txHash && (
+              <span className="rounded-lg border border-emerald-300/40 bg-emerald-500/10 px-3 py-2 font-mono text-[11px] text-emerald-100">
+                tx {txHash.slice(0, 10)}…
+              </span>
+            )}
+            {txError && <span className="text-xs text-amber-200">{txError}</span>}
             {error && <span className="text-xs text-amber-200">{error}</span>}
           </div>
         </div>
@@ -190,6 +240,16 @@ export default function ConsoleDashboard() {
             Operations
           </div>
           <div className="mt-2 text-lg font-semibold text-white">Live queue</div>
+          {sync && (
+            <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] font-mono text-slate-300">
+              <span className="rounded-md border border-white/10 bg-black/30 px-2 py-1">
+                cursor: {sync.chain_cursor ? `${sync.chain_cursor.block}:${sync.chain_cursor.event_index}` : "-"}
+              </span>
+              <span className="rounded-md border border-white/10 bg-black/30 px-2 py-1">
+                outbox p/f/d: {sync.outbox_pending ?? 0}/{sync.outbox_failed ?? 0}/{sync.outbox_dead ?? 0}
+              </span>
+            </div>
+          )}
           <div className="mt-3 space-y-2 text-sm text-slate-200">
             {(data?.ops ?? []).map((op) => (
               <div

@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { registerAgent, stakeAgent } from "@/lib/orchestrator";
 import { useWallet } from "@/lib/wallet-context";
+import { useExtrinsic } from "@/lib/use-extrinsic";
 
 const steps = [
   { title: "Identity", description: "Name, DID" },
@@ -45,6 +46,8 @@ export default function NewAgentPage() {
   const stake = useMutation({
     mutationFn: async () => stakeAgent({ amount: 100, did, owner: selected }),
   });
+
+  const { status: txStatus, txHash, error: txError } = useExtrinsic();
   return (
     <div className="space-y-8">
       <header className="space-y-2">
@@ -204,6 +207,10 @@ export default function NewAgentPage() {
             {(register.isError || stake.isError) && (
               <span className="text-xs text-amber-200">Submission failed</span>
             )}
+            {txStatus === "finalized" && txHash && (
+              <span className="text-xs text-emerald-200">on-chain {txHash.slice(0, 10)}…</span>
+            )}
+            {txError && <span className="text-xs text-amber-200">{txError}</span>}
             <Link href="/console/agents">
               <Button variant="ghost" type="button">
                 Cancel

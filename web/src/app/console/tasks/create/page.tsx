@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { createTask } from "@/lib/orchestrator";
 import { useWallet } from "@/lib/wallet-context";
+import { useExtrinsic } from "@/lib/use-extrinsic";
 
 export default function CreateTaskPage() {
   const { selected } = useWallet();
@@ -18,6 +19,8 @@ export default function CreateTaskPage() {
   const [timeout, setTimeoutMin] = useState("60");
   const [maxBids, setMaxBids] = useState("10");
   const [inputCid] = useState("ipfs://Qm...pending");
+
+  const { status: txStatus, txHash } = useExtrinsic();
 
   const mutation = useMutation({
     mutationFn: async () =>
@@ -33,6 +36,7 @@ export default function CreateTaskPage() {
         requester: selected,
       }),
   });
+
 
   return (
     <div className="space-y-8">
@@ -203,17 +207,20 @@ export default function CreateTaskPage() {
               type="button"
               className="gap-2"
               onClick={() => mutation.mutate()}
-              disabled={mutation.isPending}
+              disabled={mutation.isPending || txStatus === "submitting"}
             >
               <Timer className="h-4 w-4" />
-              {mutation.isPending ? "Submitting..." : "Create & Fund"}
+              {mutation.isPending || txStatus === "submitting" ? "Submitting..." : "Create & Fund"}
             </Button>
             {mutation.isSuccess && (
               <span className="text-xs text-emerald-200">
                 Enqueued (correlation {mutation.data?.correlation_id || "demo"})
               </span>
             )}
-            {mutation.isError && (
+            {txStatus === "finalized" && txHash && (
+              <span className="text-xs text-emerald-200">on-chain {txHash.slice(0, 10)}…</span>
+            )}
+            {(mutation.isError || txStatus === "error") && (
               <span className="text-xs text-amber-200">Failed to submit</span>
             )}
             <Link href="/console/tasks">

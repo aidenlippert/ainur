@@ -6,19 +6,36 @@ type Dashboard = {
   stats: {
     agents: number;
     tasks: number;
-    escrow: number;
-    finality: string;
+    completed: number;
+    pending: number;
+    escrow?: number;
+    finality?: string;
   };
   ops: { title: string; meta: string }[];
+};
+
+type RawDashboard = {
+  total_agents?: number;
+  total_tasks?: number;
+  completed_tasks?: number;
+  pending_tasks?: number;
+  ops?: { title: string; meta: string }[];
+};
+
+export type SyncStatus = {
+  chain_cursor?: { block: number; event_index: number };
+  outbox_pending?: number;
+  outbox_failed?: number;
+  outbox_dead?: number;
 };
 
 export type Agent = {
   name: string;
   did: string;
-  reputation: number;
-  caps: string[];
-  price: string;
-  latency: string;
+  reputation?: number;
+  caps?: string[];
+  price?: string;
+  latency?: string;
 };
 
 export type Task = {
@@ -26,7 +43,7 @@ export type Task = {
   title: string;
   status: string;
   budget: string;
-  minRep: number;
+  minRep?: number;
   created: string;
 };
 
@@ -44,6 +61,37 @@ export type TaskDetail = {
   timeline: { title: string; ts: string; state: "done" | "active" | "pending" }[];
 };
 
+type RawAgent = {
+  id?: string;
+  did?: string;
+  label?: string;
+  name?: string;
+  reputation?: number;
+  capabilities?: string[];
+  caps?: string[];
+  price?: string;
+  latency?: string;
+};
+
+type RawTask = {
+  id: string;
+  description?: string;
+  title?: string;
+  status?: string;
+  max_budget?: number | string;
+  budget?: string;
+  min_reputation?: number;
+  minRep?: number;
+  created_at?: number;
+  created?: string;
+  deadline?: number;
+  input_cid?: string;
+  output_cid?: string;
+  verification?: string;
+  matched_agent?: string;
+  timeline?: TaskDetail["timeline"];
+};
+
 async function api<T>(path: string, init?: RequestInit, fallback?: () => Promise<T>): Promise<T> {
   try {
     const res = await fetch(`${ORCH_URL}${path}`, {
@@ -59,80 +107,71 @@ async function api<T>(path: string, init?: RequestInit, fallback?: () => Promise
 }
 
 export async function fetchDashboard(): Promise<Dashboard> {
-  return api<Dashboard>(
-    "/v1/dashboard",
-    undefined,
-    async () => ({
-      stats: { agents: 218, tasks: 47, escrow: 38420, finality: "6s" },
+  const fallback = () =>
+    Promise.resolve({
+      stats: { agents: 218, tasks: 47, completed: 12, pending: 35, escrow: 38420, finality: "6s" },
       ops: [
         { title: "Task #8421 · Verifying proof", meta: "+42s" },
         { title: "Agent did:ainur:789 bidding", meta: "3 bids" },
         { title: "Escrow settlement · task #8410", meta: "Finalizing" },
       ],
-    })
-  );
+    });
+
+  return api<RawDashboard>("/v1/dashboard", undefined, fallback).then((raw) => {
+    if (!raw || raw.total_agents === undefined) return raw as unknown as Dashboard;
+    return {
+      stats: {
+        agents: raw.total_agents,
+        tasks: raw.total_tasks,
+        completed: raw.completed_tasks,
+        pending: raw.pending_tasks,
+      },
+      ops: raw.ops ?? [],
+    };
+  });
 }
 
 export async function fetchAgents(): Promise<Agent[]> {
-  return api<Agent[]>("/v1/agents", undefined, async () => [
-    {
-      name: "Lambda Researcher",
-      did: "did:ainur:0x1234...abcd",
-      reputation: 94,
-      caps: ["research", "analysis", "python"],
-      price: "12 AINU",
-      latency: "420 ms",
-    },
-    {
-      name: "Code Sentinel",
-      did: "did:ainur:0xbeef...cafe",
-      reputation: 89,
-      caps: ["code-audit", "security", "rust"],
-      price: "22 AINU",
-      latency: "610 ms",
-    },
-    {
-      name: "Vision Prover",
-      did: "did:ainur:0x9f9f...1a1a",
-      reputation: 91,
-      caps: ["vision", "caption", "wasm"],
-      price: "18 AINU",
-      latency: "510 ms",
-    },
-  ]);
+  const toAgent = (raw: RawAgent): Agent => ({
+    name: raw.label ?? raw.name ?? raw.id ?? "agent",
+    did: raw.id ?? raw.did ?? "",
+    reputation: raw.reputation,
+    caps: raw.capabilities ?? raw.caps ?? [],
+    price: raw.price,
+    latency: raw.latency,
+  });
+
+  return api<RawAgent[]>("/v1/agents", undefined, async () => [
+    { id: "did:ainur:0x1234...abcd", label: "Lambda Researcher" },
+    { id: "did:ainur:0xbeef...cafe", label: "Code Sentinel" },
+    { id: "did:ainur:0x9f9f...1a1a", label: "Vision Prover" },
+  ]).then((arr) => arr.map(toAgent));
 }
 
 export async function fetchTasks(): Promise<Task[]> {
-  return api<Task[]>("/v1/tasks", undefined, async () => [
+  const mapTask = (t: RawTask): Task => ({
+    id: t.id,
+    title: t.description ?? t.title ?? "Task",
+    status: t.status ?? "Pending",
+    budget: t.max_budget ? `${t.max_budget} AINU` : t.budget ?? "-",
+    minRep: t.min_reputation ?? t.minRep,
+    created: t.created_at ? new Date(t.created_at * 1000).toLocaleString() : t.created ?? "",
+  });
+
+  return api<RawTask[]>("/v1/tasks", undefined, async () => [
     {
       id: "task-1",
-      title: "Summarize research PDF",
+      description: "Summarize research PDF",
       status: "Bidding",
-      budget: "50 AINU",
-      minRep: 60,
-      created: "2m ago",
+      max_budget: 50,
+      min_reputation: 60,
+      created_at: Date.now() / 1000,
     },
-    {
-      id: "task-2",
-      title: "Code audit (Rust pallet)",
-      status: "Running",
-      budget: "120 AINU",
-      minRep: 80,
-      created: "8m ago",
-    },
-    {
-      id: "task-3",
-      title: "Generate product images",
-      status: "Verifying",
-      budget: "70 AINU",
-      minRep: 55,
-      created: "15m ago",
-    },
-  ]);
+  ]).then((arr) => arr.map(mapTask));
 }
 
 export async function fetchTaskDetail(id: string): Promise<TaskDetail | null> {
-  return api<TaskDetail | null>(`/v1/tasks/${id}`, undefined, async () => {
+  const fallback = async () => {
     const all = await fetchTasks();
     const base = all.find((t) => t.id === id);
     if (!base) return null;
@@ -147,6 +186,32 @@ export async function fetchTaskDetail(id: string): Promise<TaskDetail | null> {
       timeline: [
         { title: "Created", ts: "2m ago", state: "done" },
         { title: "Bidding", ts: "live", state: "active" },
+        { title: "Running", ts: "", state: "pending" },
+        { title: "Verifying", ts: "", state: "pending" },
+        { title: "Finalized", ts: "", state: "pending" },
+      ],
+    };
+  };
+
+  return api<RawTask | null>(`/v1/tasks/${id}`, undefined, fallback).then((t) => {
+    if (!t) return null;
+    // If response is already shaped as TaskDetail, return it; otherwise map.
+    if ((t as unknown as TaskDetail).escrow && (t as unknown as TaskDetail).inputCid)
+      return t as unknown as TaskDetail;
+    return {
+      id: t.id,
+      title: t.description ?? "Task",
+      status: t.status ?? "Pending",
+      escrow: t.max_budget ? `${t.max_budget} AINU` : t.budget ?? "-",
+      minRep: t.min_reputation ?? 0,
+      timeout: t.deadline ? `${t.deadline}s` : "",
+      inputCid: t.input_cid ?? t.inputCid ?? "",
+      outputCid: t.output_cid ?? t.outputCid ?? "",
+      verification: t.verification ?? "Optimistic",
+      matched: t.matched_agent ?? t.matched ?? "Pending",
+      timeline: t.timeline ?? [
+        { title: "Created", ts: "", state: "done" },
+        { title: "Bidding", ts: "", state: "active" },
         { title: "Running", ts: "", state: "pending" },
         { title: "Verifying", ts: "", state: "pending" },
         { title: "Finalized", ts: "", state: "pending" },
@@ -174,4 +239,25 @@ export async function registerAgent(payload: Record<string, unknown>) {
 export async function stakeAgent(payload: Record<string, unknown>) {
   // No REST stake route yet; fallback immediately.
   return { correlation_id: "demo-stake", ...payload };
+}
+
+export async function fetchSyncStatus(): Promise<SyncStatus> {
+  return api<SyncStatus>("/v1/sync/status", undefined, async () => ({
+    chain_cursor: { block: 0, event_index: 0 },
+    outbox_pending: 0,
+    outbox_failed: 0,
+    outbox_dead: 0,
+  }));
+}
+
+export async function requestFaucet(address: string) {
+  return api<{ correlation_id?: string; address: string; amount: number }>(
+    "/v1/faucet",
+    {
+      method: "POST",
+      body: JSON.stringify({ address, amount: 1_000_000_000_000 }),
+      headers: { "content-type": "application/json" },
+    },
+    async () => ({ correlation_id: "demo", address, amount: 1_000_000_000_000 })
+  );
 }

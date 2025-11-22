@@ -50,14 +50,14 @@ if [ -f "$PG_HBA" ]; then
   sudo systemctl restart postgresql
 fi
 
-# Build orchestrator
+# Build orchestrator (enable postgres + chain-bridge features)
 echo "==> Building orchestrator API..."
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 cd "$PROJECT_ROOT/orchestrator/api"
 
-# Build release binary
-cargo build --release
+# Build release binary with required features
+cargo build --release --features "postgres,chain-bridge"
 
 # Install binary
 echo "==> Installing orchestrator binary..."

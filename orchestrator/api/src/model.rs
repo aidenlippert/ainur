@@ -160,6 +160,30 @@ pub struct ResponseWithCorrelation<T> {
     pub data: T,
 }
 
+/// Aggregate counts for the dashboard surface.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DashboardView {
+    pub total_agents: usize,
+    pub total_tasks: usize,
+    pub completed_tasks: usize,
+    pub pending_tasks: usize,
+}
+
+/// Observability payload for chain sync/outbox state.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SyncStatusView {
+    pub chain_cursor: Option<ChainCursorView>,
+    pub outbox_pending: Option<i64>,
+    pub outbox_failed: Option<i64>,
+    pub outbox_dead: Option<i64>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ChainCursorView {
+    pub block: u64,
+    pub event_index: u32,
+}
+
 impl TaskView {
     pub fn from_stored(stored: &StoredTask) -> Self {
         Self {

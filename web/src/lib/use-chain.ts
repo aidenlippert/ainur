@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { ApiPromise, WsProvider } from "@polkadot/api";
+import type { AccountInfo } from "@polkadot/types/interfaces";
 import { CHAIN_WS, TOKEN_DECIMALS, TOKEN_SYMBOL } from "@/lib/config";
 
 type ChainState = {
@@ -34,7 +35,7 @@ export function useChain(address?: string) {
         });
 
         if (address) {
-          const accountInfo: any = await api.query.system.account(address);
+          const accountInfo = (await api.query.system.account(address)) as unknown as AccountInfo;
           const free = accountInfo.data.free.toBigInt();
           const denom = BigInt(10) ** BigInt(TOKEN_DECIMALS);
           const whole = free / denom;

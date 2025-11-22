@@ -11,9 +11,11 @@ use ainur_core::{AgentId, Bid, ExecutionProof, ResourceUsage, TaskId, TaskResult
 use hex::ToHex;
 use metrics::{counter, histogram};
 use serde_json::json;
+use std::str::FromStr;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
 use std::time::Instant;
+use subxt::utils::{AccountId32, MultiAddress};
 use subxt_signer::sr25519;
 use uuid::Uuid;
 #[cfg(feature = "postgres")]
@@ -40,77 +42,102 @@ pub async fn run_chain_replay(
         info!("CHAIN_METADATA_PATH provided ({}); static metadata loading not yet wired, using live metadata from node", path);
     }
 
-    let client = subxt::OnlineClient::<subxt::config::SubstrateConfig>::from_url(ws_url.clone())
-        .await
-        .map_err(|e| ApiError::Internal(format!("chain connect failed: {e}")))?;
-
-    info!("chain replay worker connected to {}", ws_url);
-
-    let mut blocks = client
-        .blocks()
-        .subscribe_finalized()
-        .await
-        .map_err(|e| ApiError::Internal(format!("failed to subscribe to blocks: {e}")))?;
-
-    let mut last_cursor = sink.last_chain_cursor().await?.unwrap_or((0, 0));
-
-    while let Some(block) = blocks.next().await {
-        let block = match block {
-            Ok(b) => b,
-            Err(err) => {
-                warn!("block subscription error: {err}");
-                continue;
-            }
-        };
-
-        let block_number = block.number();
-        let events = match block.events().await {
-            Ok(evts) => evts,
-            Err(err) => {
-                warn!("failed to fetch events for block {block_number}: {err}");
-                continue;
-            }
-        };
-
-        let mut iter = events.iter();
-        while let Some(event) = iter.next() {
-            let event = match event {
-                Ok(ev) => ev,
+    loop {
+        let client =
+            match subxt::OnlineClient::<subxt::config::SubstrateConfig>::from_url(ws_url.clone())
+                .await
+            {
+                Ok(c) => c,
                 Err(err) => {
-                    warn!("failed to decode event in block {block_number}: {err}");
+                    warn!("chain replay: connect failed: {err}; retrying in 3s");
+                    tokio::time::sleep(Duration::from_secs(3)).await;
                     continue;
                 }
             };
 
-            let pallet = event.pallet_name().to_string();
-            let variant = event.variant_name().to_string();
-            let idx = event.index();
-            let supported = is_supported(&pallet, &variant);
-            if !supported {
+        info!("chain replay worker connected to {}", ws_url);
+
+        let mut blocks = match client.blocks().subscribe_finalized().await {
+            Ok(b) => b,
+            Err(err) => {
+                warn!("chain replay: subscribe failed: {err}; retrying");
                 continue;
             }
-            let payload = match event.field_values() {
-                Ok(values) => format!("{values:?}"),
-                Err(_) => "<undecodable>".to_string(),
+        };
+
+        let mut last_cursor = sink.last_chain_cursor().await?.unwrap_or((0, 0));
+
+        while let Some(block) = blocks.next().await {
+            let block = match block {
+                Ok(b) => b,
+                Err(err) => {
+                    warn!("block subscription error: {err}; reconnecting");
+                    break;
+                }
             };
-            let correlation = match event.phase() {
-                subxt::events::Phase::ApplyExtrinsic(ex_idx) => match block.extrinsics().await {
-                    Ok(extrs) => extrs
-                        .iter()
-                        .enumerate()
-                        .find(|(i, _)| *i == ex_idx as usize)
-                        .map(|(_, ex)| format!("0x{}", hex::encode(ex.hash().as_ref()))),
+
+            let block_number_u32 = block.number();
+            let block_number = block_number_u32 as u64;
+            // Skip already processed blocks/events based on cursor.
+            let mut max_cursor = last_cursor;
+
+            let events = match block.events().await {
+                Ok(evts) => evts,
+                Err(err) => {
+                    warn!("failed to fetch events for block {block_number}: {err}");
+                    continue;
+                }
+            };
+
+            let mut iter = events.iter();
+            while let Some(event) = iter.next() {
+                let event = match event {
+                    Ok(ev) => ev,
                     Err(err) => {
-                        warn!("failed to fetch extrinsics for block {block_number}: {err}");
-                        None
+                        warn!("failed to decode event in block {block_number}: {err}");
+                        continue;
                     }
-                },
-                _ => None,
-            };
-            #[cfg(feature = "postgres")]
-            if let Some(pool) = &pg_pool {
-                if pallet == "AgentRegistry" && variant == "AgentRegistered" {
-                    if let Ok(Some(ev)) = event
+                };
+
+                let pallet = event.pallet_name().to_string();
+                let variant = event.variant_name().to_string();
+                let idx = event.index();
+
+                // Cursor skip logic
+                if block_number < last_cursor.0
+                    || (block_number == last_cursor.0 && (idx as u32) <= last_cursor.1)
+                {
+                    continue;
+                }
+
+                let supported = is_supported(&pallet, &variant);
+                if !supported {
+                    continue;
+                }
+                let payload = match event.field_values() {
+                    Ok(values) => format!("{values:?}"),
+                    Err(_) => "<undecodable>".to_string(),
+                };
+                let correlation = match event.phase() {
+                    subxt::events::Phase::ApplyExtrinsic(ex_idx) => {
+                        match block.extrinsics().await {
+                            Ok(extrs) => extrs
+                                .iter()
+                                .enumerate()
+                                .find(|(i, _)| *i == ex_idx as usize)
+                                .map(|(_, ex)| format!("0x{}", hex::encode(ex.hash().as_ref()))),
+                            Err(err) => {
+                                warn!("failed to fetch extrinsics for block {block_number}: {err}");
+                                None
+                            }
+                        }
+                    }
+                    _ => None,
+                };
+                #[cfg(feature = "postgres")]
+                if let Some(pool) = &pg_pool {
+                    if pallet == "AgentRegistry" && variant == "AgentRegistered" {
+                        if let Ok(Some(ev)) = event
                         .as_event::<temporal_bindings::api::agent_registry::events::AgentRegistered>()
                     {
                         let did = format!("did:ainur:{}", ev.agent_id);
@@ -161,8 +188,8 @@ pub async fn run_chain_replay(
                         .execute(pool)
                         .await;
                     }
-                } else if pallet == "TaskMarket" && variant == "TaskCreated" {
-                    if let Ok(Some(ev)) =
+                    } else if pallet == "TaskMarket" && variant == "TaskCreated" {
+                        if let Ok(Some(ev)) =
                         event.as_event::<temporal_bindings::api::task_market::events::TaskCreated>()
                     {
                         // Build a stub task entry so chain tasks are visible via API.
@@ -252,8 +279,8 @@ pub async fn run_chain_replay(
 
                         let _ = patch_pending_with_ids(pool, Some(chain_task_id), None).await;
                     }
-                } else if pallet == "TaskMarket" && variant == "BidSubmitted" {
-                    if let Ok(Some(ev)) = event
+                    } else if pallet == "TaskMarket" && variant == "BidSubmitted" {
+                        if let Ok(Some(ev)) = event
                         .as_event::<temporal_bindings::api::task_market::events::BidSubmitted>(
                     ) {
                         if let Ok(Some(task_row)) =
@@ -325,8 +352,8 @@ pub async fn run_chain_replay(
                             }
                         }
                     }
-                } else if pallet == "TaskMarket" && variant == "TaskCompleted" {
-                    if let Ok(Some(ev)) = event
+                    } else if pallet == "TaskMarket" && variant == "TaskCompleted" {
+                        if let Ok(Some(ev)) = event
                         .as_event::<temporal_bindings::api::task_market::events::TaskCompleted>(
                     ) {
                         let result_hash = ev.result_hash.encode_hex::<String>();
@@ -418,27 +445,54 @@ pub async fn run_chain_replay(
                             .await;
                         }
                     }
-                }
-            }
-            sink.record_chain_event(
-                block_number.into(),
-                idx,
-                &pallet,
-                &variant,
-                &payload,
-                correlation.as_deref(),
-            )
-            .await?;
+                    } else if pallet == "TaskMarket" && variant == "TaskMatched" {
+                        let (task_id_opt, agent_id_opt) = extract_two_u64(&payload);
+                        if let (Some(task_id), Some(agent_id)) = (task_id_opt, agent_id_opt) {
+                            let _ = sqlx::query(
+                                r#"
+                            UPDATE tasks
+                            SET status = 'pending', matched_agent = $2, updated_at = now()
+                            WHERE chain_task_id = $1
+                            "#,
+                            )
+                            .bind(task_id as i64)
+                            .bind(agent_id as i64)
+                            .execute(pool)
+                            .await;
 
-            last_cursor = (block_number.into(), idx);
+                            let _ = patch_pending_with_ids(
+                                pool,
+                                Some(task_id as i64),
+                                Some(agent_id as i64),
+                            )
+                            .await;
+                        }
+                    }
+                }
+                sink.record_chain_event(
+                    block_number.into(),
+                    idx,
+                    &pallet,
+                    &variant,
+                    &payload,
+                    correlation.as_deref(),
+                )
+                .await?;
+
+                max_cursor = (block_number.into(), idx);
+            }
+
+            if max_cursor.0 > last_cursor.0
+                || (max_cursor.0 == last_cursor.0 && max_cursor.1 > last_cursor.1)
+            {
+                sink.update_chain_cursor(max_cursor.0, max_cursor.1).await?;
+                last_cursor = max_cursor;
+                debug!("ingested block {block_number}, cursor={:?}", last_cursor);
+            }
         }
 
-        sink.update_chain_cursor(last_cursor.0, last_cursor.1)
-            .await?;
-        debug!("ingested block {block_number}, cursor={:?}", last_cursor);
+        // reconnect loop
     }
-
-    Ok(())
 }
 
 /// Record an outbound extrinsic intent for correlation. This does not yet
@@ -480,10 +534,8 @@ pub async fn run_outbox(
         info!("CHAIN_METADATA_PATH provided ({}); static metadata loading not yet wired, using live metadata from node", path);
     }
 
-    let client = subxt::OnlineClient::<subxt::config::SubstrateConfig>::from_url(ws_url.clone())
-        .await
-        .map_err(|e| ApiError::Internal(format!("chain connect failed: {e}")))?;
     let signer = sr25519::dev::alice();
+    let mut client = connect_client(&ws_url).await?;
     info!("chain outbox worker connected to {}", ws_url);
 
     loop {
@@ -547,6 +599,16 @@ pub async fn run_outbox(
                 info!(target: "outbox", %correlation_id, %pallet, %call, "submitted extrinsic");
             }
             Err(err) => {
+                if is_connection_err(&err) {
+                    // rollback transaction and reconnect, leave job pending
+                    tx.rollback()
+                        .await
+                        .map_err(|e| ApiError::Internal(format!("outbox: rollback failed: {e}")))?;
+                    warn!(target: "outbox", "connection error, reconnecting ws and retrying later: {err}");
+                    client = connect_client(&ws_url).await?;
+                    tokio::time::sleep(Duration::from_millis(poll_ms)).await;
+                    continue;
+                }
                 let err = {
                     let mut s = err;
                     const MAX_ERR: usize = 512;
@@ -712,6 +774,33 @@ fn extract_first_u64(payload: &str) -> Option<u64> {
     let trimmed = payload.trim().trim_start_matches('[').trim_end_matches(']');
     let first = trimmed.split(',').next()?.trim();
     first.parse::<u64>().ok()
+}
+
+fn extract_two_u64(payload: &str) -> (Option<u64>, Option<u64>) {
+    let trimmed = payload.trim().trim_start_matches('[').trim_end_matches(']');
+    let mut parts = trimmed.split(',').map(|s| s.trim());
+    let first = parts.next().and_then(|v| v.parse::<u64>().ok());
+    let second = parts.next().and_then(|v| v.parse::<u64>().ok());
+    (first, second)
+}
+
+fn is_connection_err(err: &str) -> bool {
+    err.contains("disconnect") || err.contains("Connection") || err.contains("closed")
+}
+
+#[cfg(feature = "postgres")]
+async fn connect_client(
+    ws_url: &str,
+) -> Result<subxt::OnlineClient<subxt::config::SubstrateConfig>, ApiError> {
+    loop {
+        match subxt::OnlineClient::<subxt::config::SubstrateConfig>::from_url(ws_url).await {
+            Ok(c) => return Ok(c),
+            Err(err) => {
+                warn!("outbox: connect failed: {err}; retrying in 3s");
+                tokio::time::sleep(Duration::from_secs(3)).await;
+            }
+        }
+    }
 }
 
 /// Patch pending extrinsics payloads once real chain ids are known.
@@ -979,6 +1068,32 @@ async fn submit_extrinsic(
                 .map_err(|e| format!("finalize: {e}"))?;
             Ok(tx_hash)
         }
+        ("Balances", "transfer_allow_death") => {
+            let dest = payload_val
+                .get("address")
+                .and_then(|v| v.as_str())
+                .ok_or("missing address")?;
+            let account =
+                AccountId32::from_str(dest).map_err(|e| format!("invalid ss58 address: {e}"))?;
+            let amount = payload_val
+                .get("amount")
+                .and_then(|v| v.as_u64())
+                .ok_or("missing amount")? as u128;
+            let tx = api::tx()
+                .balances()
+                .transfer_allow_death(MultiAddress::Id(account), amount);
+            let progress = client
+                .tx()
+                .sign_and_submit_then_watch_default(&tx, signer)
+                .await
+                .map_err(|e| format!("submit: {e}"))?;
+            let tx_hash = format!("0x{}", hex::encode(progress.extrinsic_hash().as_ref()));
+            progress
+                .wait_for_finalized_success()
+                .await
+                .map_err(|e| format!("finalize: {e}"))?;
+            Ok(tx_hash)
+        }
         _ => Err(format!("unsupported pallet/call: {pallet}::{call}")),
     }
 }
@@ -1076,6 +1191,15 @@ fn decode_payload(pallet: &str, call: &str, payload: Option<&str>) -> Result<(),
                     return Err("proof exceeds 4096 chars".into());
                 }
             }
+            Ok(())
+        }
+        ("Balances", "transfer_allow_death") => {
+            let _ = get_str(payload_val.get("address"), "address", 128)?;
+            // allow up to u128::MAX but still ensure present
+            let _ = payload_val
+                .get("amount")
+                .and_then(|v| v.as_u64())
+                .ok_or_else(|| "missing amount".to_string())?;
             Ok(())
         }
         _ => Err(format!("unsupported pallet/call: {pallet}::{call}")),

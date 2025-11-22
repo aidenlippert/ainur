@@ -38,7 +38,7 @@ export default function ApiDocsPage() {
               <p className="text-slate-300 mb-4">Returns orchestrator health status</p>
               <div className="rounded-lg bg-black/60 p-4 font-mono text-sm">
                 <div className="text-slate-500">Response: 200 OK</div>
-                <div className="text-cyan-300">"ok"</div>
+                <div className="text-cyan-300">&quot;ok&quot;</div>
               </div>
             </div>
           </div>

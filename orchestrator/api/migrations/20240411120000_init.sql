@@ -37,7 +37,6 @@ CREATE TABLE IF NOT EXISTS bids (
 );
 
 CREATE INDEX IF NOT EXISTS bids_task_idx ON bids (task_id);
-CREATE UNIQUE INDEX IF NOT EXISTS bids_task_agent_unique ON bids (task_id, agent_id);
 
 -- Results for tasks
 CREATE TABLE IF NOT EXISTS results (
@@ -51,7 +50,7 @@ CREATE TABLE IF NOT EXISTS results (
     stored_json JSONB NOT NULL
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS results_task_unique ON results (task_id);
+-- Unique constraint added in later migration
 
 -- Chain event mirror for replay/idempotency
 CREATE TABLE IF NOT EXISTS chain_events (

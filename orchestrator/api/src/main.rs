@@ -20,10 +20,10 @@ use ainur_orchestrator_api::execution::{
     execute_and_build_result, ExecutionEngine, LocalEchoEngine,
 };
 use ainur_orchestrator_api::model::{
-    AgentRegistrationRequest, BidSubmissionRequest, BidView, OutboundExtrinsicRequest,
-    OutboxEnqueueResponse, OutboxQuery, OutboxStatusView, ResponseWithCorrelation,
-    ResultSubmissionRequest, ResultView, StoredBid, StoredResult, StoredTask, TaskStatus,
-    TaskSubmissionRequest, TaskView,
+    AgentRegistrationRequest, BidSubmissionRequest, BidView, ChainCursorView, DashboardView,
+    OutboundExtrinsicRequest, OutboxEnqueueResponse, OutboxQuery, OutboxStatusView,
+    ResponseWithCorrelation, ResultSubmissionRequest, ResultView, StoredBid, StoredResult,
+    StoredTask, SyncStatusView, TaskStatus, TaskSubmissionRequest, TaskView,
 };
 #[cfg(feature = "chain-bridge")]
 use ainur_orchestrator_api::storage::ChainEventSink;
@@ -240,15 +240,20 @@ async fn main() {
 
     let app = Router::new()
         .route("/health", get(health))
-        .route("/v1/agents", post(register_agent))
+        .route("/v1/dashboard", get(get_dashboard))
+        .route("/v1/sync/status", get(get_sync_status))
+        .route("/v1/agents", get(list_agents).post(register_agent))
         .route("/v1/agents/:id", get(get_agent))
-        .route("/v1/tasks", post(submit_task))
+        .route("/v1/tasks", get(list_tasks).post(submit_task))
         .route("/v1/tasks/:id", get(get_task))
         .route("/v1/bids", post(submit_bid))
         .route("/v1/tasks/:id/bids", get(get_bids_for_task))
         .route("/v1/results", post(submit_result))
         .route("/v1/tasks/:id/result", get(get_task_result))
         .route("/v1/tasks/:id/execute-local", post(execute_task_local));
+
+    #[cfg(feature = "chain-bridge")]
+    let app = app.route("/v1/faucet", post(request_faucet));
 
     #[cfg(feature = "chain-bridge")]
     let app = app
@@ -366,6 +371,13 @@ async fn get_agent(
     Ok(Json(agent))
 }
 
+async fn list_agents(
+    State(state): State<AppState>,
+) -> Result<Json<Vec<AgentRegistrationRequest>>, ApiError> {
+    let agents = state.storage.list_agents().await?;
+    Ok(Json(agents))
+}
+
 async fn submit_task(
     State(state): State<AppState>,
     Json(payload): Json<TaskSubmissionRequest>,
@@ -421,6 +433,11 @@ async fn get_task(
 ) -> Result<Json<TaskView>, ApiError> {
     let stored = state.storage.get_task(&id).await?;
     Ok(Json(task_to_view(&stored)))
+}
+
+async fn list_tasks(State(state): State<AppState>) -> Result<Json<Vec<TaskView>>, ApiError> {
+    let tasks = state.storage.list_tasks().await?;
+    Ok(Json(tasks.iter().map(task_to_view).collect()))
 }
 
 async fn submit_bid(
@@ -586,6 +603,110 @@ async fn get_task_result(
 
     let stored = state.storage.get_result_for_task(&id).await?;
     Ok(Json(result_to_view(&stored)))
+}
+
+async fn get_dashboard(State(state): State<AppState>) -> Result<Json<DashboardView>, ApiError> {
+    let (total_agents, total_tasks, completed_tasks, pending_tasks) =
+        state.storage.dashboard_counts().await?;
+    Ok(Json(DashboardView {
+        total_agents,
+        total_tasks,
+        completed_tasks,
+        pending_tasks,
+    }))
+}
+
+async fn get_sync_status(State(state): State<AppState>) -> Result<Json<SyncStatusView>, ApiError> {
+    #[cfg(feature = "chain-bridge")]
+    let cursor = state
+        .chain_sink
+        .last_chain_cursor()
+        .await?
+        .map(|(block, event_index)| ChainCursorView { block, event_index });
+
+    #[cfg(not(feature = "chain-bridge"))]
+    let cursor = None;
+
+    #[cfg(feature = "postgres")]
+    let (pending, failed, dead) = {
+        if let Some(pool) = state.pg_pool.clone() {
+            let row = sqlx::query(
+                r#"
+                SELECT
+                    COUNT(*) FILTER (WHERE status = 'pending')   AS pending,
+                    COUNT(*) FILTER (WHERE status = 'failed')    AS failed,
+                    COUNT(*) FILTER (WHERE status = 'dead')      AS dead
+                FROM outbound_extrinsics
+                "#,
+            )
+            .fetch_one(&pool)
+            .await
+            .map_err(|e| ApiError::Internal(format!("failed to count outbox: {e}")))?;
+
+            (
+                Some(row.get::<i64, _>("pending")),
+                Some(row.get::<i64, _>("failed")),
+                Some(row.get::<i64, _>("dead")),
+            )
+        } else {
+            (None, None, None)
+        }
+    };
+
+    #[cfg(not(feature = "postgres"))]
+    let (pending, failed, dead): (Option<i64>, Option<i64>, Option<i64>) = (None, None, None);
+
+    Ok(Json(SyncStatusView {
+        chain_cursor: cursor,
+        outbox_pending: pending,
+        outbox_failed: failed,
+        outbox_dead: dead,
+    }))
+}
+
+#[cfg(feature = "chain-bridge")]
+async fn request_faucet(
+    State(state): State<AppState>,
+    Json(body): Json<serde_json::Value>,
+) -> Result<Json<ResponseWithCorrelation<serde_json::Value>>, ApiError> {
+    let addr = body
+        .get("address")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| ApiError::BadRequest("address is required".into()))?;
+    let amount: u64 = body
+        .get("amount")
+        .and_then(|v| v.as_u64())
+        .unwrap_or(1_000_000_000_000); // default 1,000 AINU (12 decimals)
+
+    let payload_json = serde_json::json!({
+        "address": addr,
+        "amount": amount,
+    });
+
+    // Validate payload and enqueue outbound extrinsic.
+    chain::validate_outbox_payload(
+        "Balances",
+        "transfer_allow_death",
+        Some(payload_json.to_string().as_str()),
+    )?;
+
+    let correlation_id = Uuid::new_v4().to_string();
+    chain::record_outbound_extrinsic(
+        state.chain_sink.clone(),
+        &correlation_id,
+        "Balances",
+        "transfer_allow_death",
+        Some(&payload_json.to_string()),
+    )
+    .await?;
+
+    Ok(Json(ResponseWithCorrelation {
+        correlation_id: Some(correlation_id),
+        data: serde_json::json!({
+            "address": addr,
+            "amount": amount
+        }),
+    }))
 }
 
 /// Convenience endpoint used during early development to exercise the complete

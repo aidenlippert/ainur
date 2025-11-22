@@ -20,16 +20,20 @@ use {
 pub trait Storage: Send + Sync {
     async fn register_agent(&self, agent: AgentRegistrationRequest) -> Result<(), ApiError>;
     async fn get_agent(&self, id: &str) -> Result<AgentRegistrationRequest, ApiError>;
+    async fn list_agents(&self) -> Result<Vec<AgentRegistrationRequest>, ApiError>;
 
     async fn insert_task(&self, task: StoredTask) -> Result<(), ApiError>;
     async fn upsert_task(&self, task: StoredTask) -> Result<(), ApiError>;
     async fn get_task(&self, id: &str) -> Result<StoredTask, ApiError>;
+    async fn list_tasks(&self) -> Result<Vec<StoredTask>, ApiError>;
 
     async fn insert_bid(&self, bid: StoredBid) -> Result<(), ApiError>;
     async fn get_bids_for_task(&self, task_id: &str) -> Result<Vec<StoredBid>, ApiError>;
 
     async fn insert_result(&self, result: StoredResult) -> Result<(), ApiError>;
     async fn get_result_for_task(&self, task_id: &str) -> Result<StoredResult, ApiError>;
+
+    async fn dashboard_counts(&self) -> Result<(usize, usize, usize, usize), ApiError>;
 }
 
 /// In-memory storage used for development and tests.
@@ -58,6 +62,11 @@ impl Storage for InMemoryStorage {
             .ok_or_else(|| ApiError::NotFound(format!("agent {id} not found")))
     }
 
+    async fn list_agents(&self) -> Result<Vec<AgentRegistrationRequest>, ApiError> {
+        let agents = self.agents.read().await;
+        Ok(agents.values().cloned().collect())
+    }
+
     async fn insert_task(&self, task: StoredTask) -> Result<(), ApiError> {
         let mut tasks = self.tasks.write().await;
         tasks.insert(task.id.clone(), task);
@@ -76,6 +85,11 @@ impl Storage for InMemoryStorage {
             .get(id)
             .cloned()
             .ok_or_else(|| ApiError::NotFound(format!("task {id} not found")))
+    }
+
+    async fn list_tasks(&self) -> Result<Vec<StoredTask>, ApiError> {
+        let tasks = self.tasks.read().await;
+        Ok(tasks.values().cloned().collect())
     }
 
     async fn insert_bid(&self, bid: StoredBid) -> Result<(), ApiError> {
@@ -106,6 +120,18 @@ impl Storage for InMemoryStorage {
             .find(|r| r.task_id == task_id)
             .cloned()
             .ok_or_else(|| ApiError::NotFound(format!("no result for task {task_id}")))
+    }
+
+    async fn dashboard_counts(&self) -> Result<(usize, usize, usize, usize), ApiError> {
+        let agents = self.agents.read().await;
+        let tasks = self.tasks.read().await;
+        let total_tasks = tasks.len();
+        let completed = tasks
+            .values()
+            .filter(|t| matches!(t.status, crate::model::TaskStatus::Completed))
+            .count();
+        let pending = total_tasks.saturating_sub(completed);
+        Ok((agents.len(), total_tasks, completed, pending))
     }
 }
 
@@ -281,6 +307,21 @@ impl Storage for PostgresStorage {
         })
     }
 
+    async fn list_agents(&self) -> Result<Vec<AgentRegistrationRequest>, ApiError> {
+        let rows = sqlx::query("SELECT id, label FROM agents ORDER BY created_at DESC")
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| ApiError::Internal(format!("failed to list agents: {e}")))?;
+
+        Ok(rows
+            .into_iter()
+            .map(|row| AgentRegistrationRequest {
+                id: row.get::<String, _>("id"),
+                label: row.get::<String, _>("label"),
+            })
+            .collect())
+    }
+
     async fn insert_task(&self, task: StoredTask) -> Result<(), ApiError> {
         let task_uuid = Self::parse_uuid(&task.id, "task id")?;
         let stored_json = Self::serialize(&task)?;
@@ -385,6 +426,23 @@ impl Storage for PostgresStorage {
         Ok(task)
     }
 
+    async fn list_tasks(&self) -> Result<Vec<StoredTask>, ApiError> {
+        let rows = sqlx::query("SELECT stored_json, status FROM tasks ORDER BY created_at DESC")
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| ApiError::Internal(format!("failed to list tasks: {e}")))?;
+
+        let mut out = Vec::with_capacity(rows.len());
+        for row in rows {
+            let mut task: StoredTask = serde_json::from_value(row.get("stored_json"))
+                .map_err(|e| ApiError::Internal(format!("failed to decode task: {e}")))?;
+            let status_str: String = row.get("status");
+            task.status = Self::str_to_status(&status_str)?;
+            out.push(task);
+        }
+        Ok(out)
+    }
+
     async fn insert_bid(&self, bid: StoredBid) -> Result<(), ApiError> {
         let bid_uuid = Self::parse_uuid(&bid.id, "bid id")?;
         let task_uuid = Self::parse_uuid(&bid.task_id, "bid task_id")?;
@@ -487,6 +545,38 @@ impl Storage for PostgresStorage {
         let result: StoredResult = serde_json::from_value(row.get("stored_json"))
             .map_err(|e| ApiError::Internal(format!("failed to decode result: {e}")))?;
         Ok(result)
+    }
+
+    async fn dashboard_counts(&self) -> Result<(usize, usize, usize, usize), ApiError> {
+        let row = sqlx::query(
+            r#"
+            SELECT
+                COUNT(*)                           AS total_tasks,
+                COUNT(*) FILTER (WHERE status = 'completed') AS completed_tasks,
+                COUNT(*) FILTER (WHERE status = 'pending')   AS pending_tasks
+            FROM tasks
+            "#,
+        )
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| ApiError::Internal(format!("failed to aggregate tasks: {e}")))?;
+
+        let row_agents = sqlx::query("SELECT COUNT(*) AS total_agents FROM agents")
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|e| ApiError::Internal(format!("failed to count agents: {e}")))?;
+
+        let total_agents: i64 = row_agents.get("total_agents");
+        let total_tasks: i64 = row.get("total_tasks");
+        let completed_tasks: i64 = row.get("completed_tasks");
+        let pending_tasks: i64 = row.get("pending_tasks");
+
+        Ok((
+            total_agents as usize,
+            total_tasks as usize,
+            completed_tasks as usize,
+            pending_tasks as usize,
+        ))
     }
 }
 

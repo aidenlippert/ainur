@@ -1,7 +1,20 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Droplets, Copy } from "lucide-react";
+import { useWallet } from "@/lib/wallet-context";
+import { useMutation } from "@tanstack/react-query";
+import { requestFaucet } from "@/lib/orchestrator";
 
 export default function FaucetPage() {
+  const { selected, connect, status } = useWallet();
+  const faucet = useMutation({
+    mutationFn: async () => {
+      if (!selected) throw new Error("Connect wallet first");
+      return requestFaucet(selected);
+    },
+  });
+
   return (
     <div className="space-y-6">
       <header className="space-y-2">
@@ -21,7 +34,7 @@ export default function FaucetPage() {
               Connected address
             </div>
             <div className="flex items-center gap-2 font-mono text-sm text-white">
-              5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+              {selected ? selected : "Not connected"}
               <Copy className="h-4 w-4 cursor-pointer text-slate-500" />
             </div>
             <div className="text-sm text-slate-400">
@@ -34,10 +47,14 @@ export default function FaucetPage() {
         </div>
 
         <div className="mt-4 flex flex-wrap gap-3">
-          <Button size="sm">Request 1,000 AINU</Button>
-          <Button variant="outline" size="sm" className="border-white/20">
-            Refresh balance
+          <Button size="sm" onClick={() => faucet.mutate()} disabled={faucet.isPending || !selected}>
+            {selected ? "Request 1,000 AINU" : status === "connecting" ? "Connecting..." : "Connect wallet"}
           </Button>
+          {!selected && (
+            <Button variant="outline" size="sm" className="border-white/20" onClick={connect}>
+              Connect wallet
+            </Button>
+          )}
         </div>
 
         <div className="mt-4 rounded-xl border border-white/10 bg-black/30 p-4 text-xs text-slate-200">
@@ -45,7 +62,12 @@ export default function FaucetPage() {
             Faucet logs
           </div>
           <div className="mt-2 font-mono text-[11px] text-cyan-200">
-            [pending] tx hash will appear here after request
+            {faucet.isPending && "[pending] submitting faucet request"}
+            {faucet.isSuccess &&
+              `enqueued correlation ${faucet.data?.correlation_id?.slice(0, 8) ?? "demo"}… amount ${
+                faucet.data?.amount ?? ""
+              }`}
+            {faucet.isError && "Failed to request faucet"}
           </div>
         </div>
       </div>
