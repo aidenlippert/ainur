@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from "react";
 import { useWallet } from "@/lib/wallet-context";
-import type { SubmittableExtrinsic } from "@polkadot/api";
 
 type ExtrinsicStatus = "idle" | "signing" | "submitting" | "finalized" | "error";
 
@@ -13,7 +12,7 @@ export function useExtrinsic() {
   const [error, setError] = useState<string | undefined>();
 
   const submit = useCallback(
-    async (build: (api: unknown, address: string) => SubmittableExtrinsic<"promise">) => {
+    async (build: (api: unknown, address: string) => any) => {
       if (!api || !selected) throw new Error("Wallet not connected");
       setStatus("signing");
       setError(undefined);
