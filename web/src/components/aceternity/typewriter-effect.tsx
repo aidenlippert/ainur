@@ -10,11 +10,15 @@ interface WordSpec {
 interface TypewriterEffectProps {
   words: WordSpec[];
   typingDelayMs?: number;
+  className?: string;
+  cursorClassName?: string;
 }
 
 export function TypewriterEffect({
   words,
   typingDelayMs = 45,
+  className = "",
+  cursorClassName = "",
 }: TypewriterEffectProps) {
   const [visibleChars, setVisibleChars] = useState(0);
 
@@ -57,13 +61,18 @@ export function TypewriterEffect({
     });
   }
 
+  const showCursor = visibleChars < fullText.length;
+
   return (
-    <span className="inline-flex flex-wrap justify-center gap-x-1">
+    <span className={`inline-flex flex-wrap justify-center gap-x-1 ${className}`}>
       {segments.map((seg) => (
         <span key={seg.key} className={seg.className}>
           {seg.text}
         </span>
       ))}
+      {showCursor && (
+        <span className={`inline-block w-[3px] h-[1em] ml-1 animate-pulse ${cursorClassName}`} />
+      )}
     </span>
   );
 }
